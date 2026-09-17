@@ -4,25 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Electrical Panel Schedule</title>
-    <!-- Додаємо бібліотеку для створення картинок з HTML -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #121212; color: #ffffff; margin: 0; padding: max(20px, env(safe-area-inset-top)) 15px 120px 15px; }
 
-        .app-header { text-align: center; margin-bottom: 25px; }
-        .app-header h1 { margin: 0 0 15px 0; font-size: 24px; color: #e0e0e0; }
-        .top-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .app-header { text-align: center; margin-bottom: 20px; }
+        .app-header h1 { margin: 0 0 10px 0; font-size: 24px; color: #e0e0e0; }
+        
+        .top-controls { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .file-controls { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; background-color: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;}
         
         button {
-            padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold;
-            font-size: 14px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;
+            padding: 10px 16px; border-radius: 6px; border: none; font-weight: bold;
+            font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: transform 0.1s;
         }
         button:active { transform: scale(0.96); }
+        
         .btn-lang { background-color: #2c2c2c; color: #fff; border: 1px solid #444; }
-        .btn-print { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; margin-top: 10px; font-size: 16px; padding: 15px;}
+        .btn-file { background-color: #444; color: #fff; border: 1px solid #555; }
+        .btn-file:hover { background-color: #555; }
+        .btn-print { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; font-size: 16px; padding: 14px; margin: 0 auto; display: block;}
 
-        .app-view { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 900px; margin: 0 auto; }
+        .app-view { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 900px; margin: 0 auto 20px auto; }
         @media(min-width: 768px) { .app-view { grid-template-columns: 1fr 1fr; } }
 
         .card { background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
@@ -41,12 +45,12 @@
 
         .slave-badge { flex: 1; text-align: center; color: #aaa; font-style: italic; font-size: 14px; }
 
-        .fab-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; pointer-events: none; }
+        .fab-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; pointer-events: none; z-index: 100;}
         .fab { pointer-events: auto; padding: 16px 24px; border-radius: 30px; font-size: 15px; }
         .fab-add { background-color: #28a745; color: white; }
         .fab-rem { background-color: #dc3545; color: white; }
 
-        /* Кольори автоматів для карток */
+        /* Кольори автоматів */
         select.a-15A { background-color: #2c2c2c; color: #fff; }
         select.a-20A { background-color: #f1c40f; color: #000; }
         select.a-30A { background-color: #2ecc71; color: #000; }
@@ -55,14 +59,8 @@
         select.a-60A { background-color: #9b59b6; color: #fff; }
         select.a-SPACE{background-color: #111; color: #555; border-color:#222;}
 
-        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ ГЕНЕРАЦІЇ КАРТИНКИ */
-        /* Робимо її фіксованої ширини, щоб вона не сплющувалась на телефоні */
-        .print-view-wrapper {
-            position: absolute; top: -9999px; left: -9999px; /* Ховаємо за екраном */
-            width: 900px; /* Імітуємо ширину комп'ютера/паперу */
-            background: #fff; padding: 20px;
-        }
-        
+        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ КАРТИНКИ */
+        .print-view-wrapper { position: absolute; top: -9999px; left: -9999px; width: 900px; background: #fff; padding: 20px; }
         table.p-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: #000; }
         .p-table th, .p-table td { border: 2px solid #000; padding: 8px 5px; text-align: center; vertical-align: middle; color: #000; }
         .p-table th { background-color: #e0e0e0; font-weight: bold; }
@@ -78,28 +76,49 @@
         td.a-60A { background-color: #ce93d8 !important; color: black !important; font-weight: bold; }
         td.a-SPACE{ background-color: #eeeeee !important; color: #888 !important; }
 
-        /* Модальне вікно для результату */
+        /* МОДАЛЬНІ ВІКНА */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
-        .modal img { max-width: 100%; max-height: 70vh; border-radius: 4px; border: 2px solid #fff; }
+        .modal-content { background: #1e1e1e; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #444; }
+        .modal-content h3 { margin-top: 0; color: #fff; text-align: center; }
+        .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 6px; border: 1px solid #555; background: #2a2a2a; color: #fff; font-size: 16px; }
+        .modal-buttons { display: flex; justify-content: space-between; gap: 10px; }
+        .modal-buttons button { flex: 1; }
+        
+        .panel-list { max-height: 50vh; overflow-y: auto; margin-bottom: 15px; }
+        .panel-item { display: flex; justify-content: space-between; align-items: center; background: #2a2a2a; padding: 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #444; }
+        .panel-item span { flex: 1; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn-del-panel { background: transparent; color: #ff4444; padding: 5px 10px; font-size: 18px; box-shadow: none; }
+        .btn-del-panel:active { transform: none; }
+
+        .modal img { max-width: 100%; max-height: 70vh; border-radius: 4px; border: 2px solid #fff; margin-bottom: 15px; }
         .modal-text { color: white; margin-bottom: 15px; font-size: 16px; text-align: center; font-weight: bold; }
-        .modal-close { margin-top: 20px; background: #dc3545; color: white; padding: 12px 30px; font-size: 16px; }
+        .btn-close-img { background: #dc3545; color: white; padding: 12px 30px; font-size: 16px; width: 100%; max-width: 300px;}
     </style>
 </head>
 <body>
 
     <div class="app-header">
         <h1 id="ui-title">⚡ Panel Schedule</h1>
+        
+        <!-- Керування мовою -->
         <div class="top-controls">
             <button class="btn-lang" onclick="setLang('uk')">🇺🇦 Укр</button>
             <button class="btn-lang" onclick="setLang('en')">🇬🇧 Eng</button>
         </div>
-        <button class="btn-print" onclick="generateImage()" id="ui-print">📸 Зробити картинку таблиці</button>
+
+        <!-- Керування збереженням (Менеджер файлів) -->
+        <div class="file-controls">
+            <button class="btn-file" onclick="newPanel()" id="ui-btn-new">📄 Новий</button>
+            <button class="btn-file" onclick="openSaveModal()" id="ui-btn-save">💾 Зберегти</button>
+            <button class="btn-file" onclick="openLoadModal()" id="ui-btn-load">📂 Відкрити</button>
+        </div>
+        
     </div>
 
-    <!-- МОБІЛЬНИЙ ІНТЕРФЕЙС -->
     <div class="app-view" id="app-view"></div>
 
-    <!-- ТАБЛИЦЯ ДЛЯ ГЕНЕРАЦІЇ КАРТИНКИ (Схована за екраном) -->
+    <button class="btn-print" onclick="generateImage()" id="ui-print">📸 Зробити картинку таблиці</button>
+
     <div class="print-view-wrapper" id="print-view"></div>
 
     <div class="fab-container">
@@ -107,11 +126,34 @@
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Видалити</button>
     </div>
 
-    <!-- ВІКНО З ГОТОВОЮ КАРТИНКОЮ -->
+    <!-- МОДАЛКА: Картинка -->
     <div class="modal" id="image-modal">
-        <div class="modal-text" id="ui-modal-text">Затисни картинку пальцем, щоб Зберегти / Поділитися</div>
+        <div class="modal-text" id="ui-modal-text">Затисни картинку пальцем, щоб Зберегти</div>
         <img id="result-img" src="" alt="Panel Image">
-        <button class="modal-close" onclick="closeModal()">✖ Закрити</button>
+        <button class="btn-close-img" onclick="closeModal('image-modal')" id="ui-btn-close">✖ Закрити</button>
+    </div>
+
+    <!-- МОДАЛКА: Зберегти щит -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <h3 id="ui-save-title">Зберегти щит</h3>
+            <input type="text" id="panel-name-input" placeholder="Наприклад: Щит 1 поверх">
+            <div class="modal-buttons">
+                <button style="background: #555; color: white;" onclick="closeModal('save-modal')" id="ui-save-cancel">Скасувати</button>
+                <button style="background: #28a745; color: white;" onclick="savePanel()" id="ui-save-ok">Зберегти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА: Завантажити щит -->
+    <div class="modal" id="load-modal">
+        <div class="modal-content">
+            <h3 id="ui-load-title">Збережені щити</h3>
+            <div class="panel-list" id="saved-panels-list">
+                <!-- Тут будуть щити -->
+            </div>
+            <button style="background: #555; color: white; width: 100%; margin-top: 10px;" onclick="closeModal('load-modal')" id="ui-load-cancel">Закрити</button>
+        </div>
     </div>
 
     <script>
@@ -119,14 +161,18 @@
             uk: {
                 title: "⚡ Електрощит", wire: "Провід (напр. 14/2)", desc: "Опис ланцюга",
                 amps: "Струм", poles: "Полюси", add: "➕ Додати", rem: "➖ Видалити",
-                print: "📸 Зробити картинку таблиці", linked: "↳ Об'єднано з #", 
-                loading: "⏳ Генерую...", hint: "Затисни картинку пальцем, щоб Зберегти в Галерею"
+                print: "📸 Зробити картинку", linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
+                btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnClose: "✖ Закрити",
+                saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти",
+                loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire (e.g. 14/2)", desc: "Description",
-                amps: "Amps", poles: "Poles", add: "➕ Add Row", rem: "➖ Remove",
-                print: "📸 Generate Image", linked: "↳ Linked to #",
-                loading: "⏳ Generating...", hint: "Long press the image to Save to Gallery"
+                amps: "Amps", poles: "Poles", add: "➕ Add", rem: "➖ Remove",
+                print: "📸 Generate Image", linked: "↳ Linked to #", hint: "Long press the image to Save",
+                btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnClose: "✖ Close",
+                saveTitle: "Save Panel As", saveCancel: "Cancel", saveOk: "Save",
+                loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels"
             }
         };
 
@@ -135,25 +181,66 @@
         let panelData = {};
         const ampOptions = ["15A", "20A", "30A", "40A", "50A", "60A", "SPACE"];
 
-        for (let i = 1; i <= totalRows * 2; i++) {
-            panelData[i] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
+        // === СИСТЕМА ПАМ'ЯТІ (LocalStorage) ===
+        
+        // Ініціалізація або завантаження останнього автозбереження
+        function initApp() {
+            const autosave = localStorage.getItem('panel_autosave');
+            if (autosave) {
+                const data = JSON.parse(autosave);
+                totalRows = data.totalRows;
+                panelData = data.panelData;
+            } else {
+                createNewData();
+            }
+            setLang(currentLang);
+        }
+
+        function createNewData() {
+            totalRows = 6;
+            panelData = {};
+            for (let i = 1; i <= totalRows * 2; i++) {
+                panelData[i] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
+            }
+        }
+
+        // Автозбереження поточного стану
+        function triggerAutosave() {
+            const state = { totalRows: totalRows, panelData: panelData };
+            localStorage.setItem('panel_autosave', JSON.stringify(state));
         }
 
         function setLang(lang) {
             currentLang = lang;
-            document.getElementById('ui-title').innerText = i18n[lang].title;
-            document.getElementById('ui-print').innerText = i18n[lang].print;
-            document.getElementById('ui-add').innerText = i18n[lang].add;
-            document.getElementById('ui-rem').innerText = i18n[lang].rem;
-            document.getElementById('ui-modal-text').innerText = i18n[lang].hint;
+            const t = i18n[lang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('ui-print').innerText = t.print;
+            document.getElementById('ui-add').innerText = t.add;
+            document.getElementById('ui-rem').innerText = t.rem;
+            document.getElementById('ui-modal-text').innerText = t.hint;
+            
+            document.getElementById('ui-btn-new').innerText = t.btnNew;
+            document.getElementById('ui-btn-save').innerText = t.btnSave;
+            document.getElementById('ui-btn-load').innerText = t.btnLoad;
+            document.getElementById('ui-btn-close').innerText = t.btnClose;
+            
+            document.getElementById('ui-save-title').innerText = t.saveTitle;
+            document.getElementById('ui-save-cancel').innerText = t.saveCancel;
+            document.getElementById('ui-save-ok').innerText = t.saveOk;
+            document.getElementById('ui-load-title').innerText = t.loadTitle;
+            document.getElementById('ui-load-cancel').innerText = t.loadCancel;
+            
             renderAll();
         }
+
+        // --- ЛОГІКА ІНТЕРФЕЙСУ ---
 
         function addRow() {
             totalRows++;
             let leftId = (totalRows * 2) - 1; let rightId = totalRows * 2;
             panelData[leftId] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
             panelData[rightId] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
+            triggerAutosave();
             renderAll();
         }
 
@@ -162,14 +249,20 @@
             let leftId = (totalRows * 2) - 1; let rightId = totalRows * 2;
             delete panelData[leftId]; delete panelData[rightId];
             totalRows--;
+            triggerAutosave();
             renderAll();
         }
 
-        function updateText(id, field, value) { panelData[id][field] = value; renderPrintView(); }
+        function updateText(id, field, value) { 
+            panelData[id][field] = value; 
+            triggerAutosave();
+            renderPrintView(); 
+        }
         
         function updateAmps(id, value) {
             panelData[id].amps = value;
             for (let i in panelData) { if (panelData[i].master === id) panelData[i].amps = value; }
+            triggerAutosave();
             renderAll();
         }
 
@@ -184,6 +277,7 @@
 
             if (poles > 1) { panelData[id + 2].master = id; panelData[id + 2].poles = 1; panelData[id + 2].amps = panelData[id].amps; }
             if (poles > 2) { panelData[id + 4].master = id; panelData[id + 4].poles = 1; panelData[id + 4].amps = panelData[id].amps; }
+            triggerAutosave();
             renderAll();
         }
 
@@ -236,59 +330,102 @@
                 let isBlue = (row % 3 === 0) ? 'phase-blue' : '';
                 html += `<tr>`;
 
-                // ЛІВА
-                if (skipLeft > 0) {
-                    html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="num ${isBlue}">${idL}</td>`;
-                    skipLeft--;
-                } else {
-                    let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : '';
-                    html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="a-${dL.amps}" ${rs}>${dL.amps}</td><td ${rs}>${dL.poles}</td><td class="num ${isBlue}">${idL}</td>`;
-                    if (dL.poles > 1) skipLeft = dL.poles - 1;
-                }
+                if (skipLeft > 0) { html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="num ${isBlue}">${idL}</td>`; skipLeft--; } 
+                else { let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : ''; html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="a-${dL.amps}" ${rs}>${dL.amps}</td><td ${rs}>${dL.poles}</td><td class="num ${isBlue}">${idL}</td>`; if (dL.poles > 1) skipLeft = dL.poles - 1; }
 
-                // ПРАВА
-                if (skipRight > 0) {
-                    html += `<td class="num ${isBlue}">${idR}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`;
-                    skipRight--;
-                } else {
-                    let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : '';
-                    html += `<td class="num ${isBlue}">${idR}</td><td ${rs}>${dR.poles}</td><td class="a-${dR.amps}" ${rs}>${dR.amps}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`;
-                    if (dR.poles > 1) skipRight = dR.poles - 1;
-                }
+                if (skipRight > 0) { html += `<td class="num ${isBlue}">${idR}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`; skipRight--; } 
+                else { let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : ''; html += `<td class="num ${isBlue}">${idR}</td><td ${rs}>${dR.poles}</td><td class="a-${dR.amps}" ${rs}>${dR.amps}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`; if (dR.poles > 1) skipRight = dR.poles - 1; }
+                
                 html += `</tr>`;
             }
             html += `</tbody></table>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
-        // МАГІЯ ГЕНЕРАЦІЇ КАРТИНКИ
         function generateImage() {
             let btn = document.getElementById('ui-print');
             let originalText = btn.innerText;
-            btn.innerText = i18n[currentLang].loading;
-            btn.disabled = true;
+            btn.innerText = "⏳..."; btn.disabled = true;
 
-            let target = document.getElementById('print-view');
-            
-            // Робимо скріншот прихованої ідеальної таблиці
-            html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            html2canvas(document.getElementById('print-view'), { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
                 document.getElementById('result-img').src = canvas.toDataURL("image/png");
-                document.getElementById('image-modal').style.display = 'flex'; // Показуємо вікно з картинкою
-                
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }).catch(err => {
-                alert("Помилка генерації картинки: " + err);
-                btn.innerText = originalText;
-                btn.disabled = false;
+                document.getElementById('image-modal').style.display = 'flex';
+                btn.innerText = originalText; btn.disabled = false;
             });
         }
 
-        function closeModal() {
-            document.getElementById('image-modal').style.display = 'none';
+        // --- ЛОГІКА МЕНЕДЖЕРА ЩИТІВ ---
+
+        function openSaveModal() {
+            document.getElementById('panel-name-input').value = "";
+            document.getElementById('save-modal').style.display = 'flex';
         }
 
-        setLang(currentLang);
+        function savePanel() {
+            let name = document.getElementById('panel-name-input').value.trim();
+            if (!name) return alert(currentLang === 'uk' ? "Введіть назву!" : "Enter a name!");
+            
+            let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
+            savedPanels[name] = { totalRows: totalRows, panelData: panelData };
+            localStorage.setItem('panel_saved_list', JSON.stringify(savedPanels));
+            
+            closeModal('save-modal');
+        }
+
+        function openLoadModal() {
+            let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
+            let listHtml = '';
+            let keys = Object.keys(savedPanels);
+            
+            if (keys.length === 0) {
+                listHtml = `<div style="text-align:center; padding: 20px; color: #888;">${i18n[currentLang].noPanels}</div>`;
+            } else {
+                keys.forEach(name => {
+                    listHtml += `
+                    <div class="panel-item">
+                        <span onclick="loadPanel('${name}')">📁 ${name}</span>
+                        <button class="btn-del-panel" onclick="deletePanel('${name}')">🗑️</button>
+                    </div>`;
+                });
+            }
+            document.getElementById('saved-panels-list').innerHTML = listHtml;
+            document.getElementById('load-modal').style.display = 'flex';
+        }
+
+        function loadPanel(name) {
+            let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
+            if (savedPanels[name]) {
+                totalRows = savedPanels[name].totalRows;
+                panelData = savedPanels[name].panelData;
+                triggerAutosave();
+                renderAll();
+                closeModal('load-modal');
+            }
+        }
+
+        function deletePanel(name) {
+            let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
+            delete savedPanels[name];
+            localStorage.setItem('panel_saved_list', JSON.stringify(savedPanels));
+            openLoadModal(); // Оновлюємо список
+        }
+
+        function newPanel() {
+            let confirmMsg = currentLang === 'uk' ? "Створити новий щит? Поточні незбережені дані будуть очищені." : "Create new panel? Current unsaved data will be cleared.";
+            if (confirm(confirmMsg)) {
+                createNewData();
+                triggerAutosave();
+                renderAll();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Старт програми
+        initApp();
+
     </script>
 </body>
 </html>
