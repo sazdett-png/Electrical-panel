@@ -2,230 +2,139 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- Спеціальні налаштування для телефонів, щоб не було дрібного масштабу -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Electrical Panel Schedule</title>
+    <!-- Додаємо бібліотеку для створення картинок з HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* =========================================
-           БАЗОВІ СТИЛІ (ТЕМНА ТЕМА ДЛЯ ТЕЛЕФОНУ)
-           ========================================= */
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            margin: 0;
-            /* Відступ зверху для чубчиків та статус-барів телефонів */
-            padding: max(20px, env(safe-area-inset-top)) 15px 120px 15px; 
-        }
+        body { background-color: #121212; color: #ffffff; margin: 0; padding: max(20px, env(safe-area-inset-top)) 15px 120px 15px; }
 
-        /* Шапка та кнопки */
         .app-header { text-align: center; margin-bottom: 25px; }
         .app-header h1 { margin: 0 0 15px 0; font-size: 24px; color: #e0e0e0; }
         .top-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         
         button {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold;
+            font-size: 14px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;
         }
         button:active { transform: scale(0.96); }
         .btn-lang { background-color: #2c2c2c; color: #fff; border: 1px solid #444; }
         .btn-print { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; margin-top: 10px; font-size: 16px; padding: 15px;}
 
-        /* =========================================
-           МОБІЛЬНИЙ ІНТЕРФЕЙС (КАРТКИ АВТОМАТІВ)
-           ========================================= */
-        .app-view {
-            display: grid;
-            grid-template-columns: 1fr; /* На телефоні 1 колонка */
-            gap: 15px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        /* На планшетах і ПК буде 2 колонки, як у фізичному щиті */
+        .app-view { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 900px; margin: 0 auto; }
         @media(min-width: 768px) { .app-view { grid-template-columns: 1fr 1fr; } }
 
-        .card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+        .card { background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
         .card.slave { opacity: 0.5; background-color: #151515; }
+        .card-header { display: flex; align-items: center; padding: 12px; background-color: #252525; border-bottom: 1px solid #333; gap: 10px; }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background-color: #252525;
-            border-bottom: 1px solid #333;
-            gap: 10px;
-        }
-
-        .b-num-box {
-            background-color: #444;
-            color: #fff;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-        }
+        .b-num-box { background-color: #444; color: #fff; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 16px; font-weight: bold; }
         .card.phase-blue .b-num-box { background-color: #00aaff; color: #fff; }
 
-        .card-header select {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            font-weight: bold;
-            font-size: 14px;
-            appearance: none; /* Прибирає стандартну стрілку на iOS */
-            text-align: center;
-        }
+        .card-header select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; font-weight: bold; font-size: 14px; appearance: none; text-align: center; }
 
         .card-body { display: flex; flex-direction: column; gap: 1px; background-color: #333; }
-        .card-body input {
-            background-color: #1e1e1e;
-            border: none;
-            padding: 16px 12px; /* Великі поля для пальця */
-            color: #fff;
-            font-size: 16px;
-            width: 100%;
-        }
+        .card-body input { background-color: #1e1e1e; border: none; padding: 16px 12px; color: #fff; font-size: 16px; width: 100%; }
         .card-body input:focus { outline: none; background-color: #2a2a2a; }
         .card-body input::placeholder { color: #666; }
 
         .slave-badge { flex: 1; text-align: center; color: #aaa; font-style: italic; font-size: 14px; }
 
-        /* Плаваючі кнопки (Додати/Видалити) внизу екрану */
-        .fab-container {
-            position: fixed;
-            bottom: 20px;
-            left: 0; right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            pointer-events: none;
-        }
-        .fab {
-            pointer-events: auto;
-            padding: 16px 24px;
-            border-radius: 30px;
-            font-size: 15px;
-        }
+        .fab-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; pointer-events: none; }
+        .fab { pointer-events: auto; padding: 16px 24px; border-radius: 30px; font-size: 15px; }
         .fab-add { background-color: #28a745; color: white; }
         .fab-rem { background-color: #dc3545; color: white; }
 
-        /* =========================================
-           КОЛЬОРИ НОМІНАЛІВ СТРУМУ (AMPS)
-           ========================================= */
-        select.a-15A, td.a-15A { background-color: #2c2c2c; color: #fff; }
-        select.a-20A, td.a-20A { background-color: #f1c40f; color: #000; } /* Жовтий */
-        select.a-30A, td.a-30A { background-color: #2ecc71; color: #000; } /* Зелений */
-        select.a-40A, td.a-40A { background-color: #e67e22; color: #000; } /* Оранжевий */
-        select.a-50A, td.a-50A { background-color: #e74c3c; color: #fff; } /* Червоний */
-        select.a-60A, td.a-60A { background-color: #9b59b6; color: #fff; } /* Фіолетовий */
-        select.a-70A, td.a-70A { background-color: #e84393; color: #fff; } /* Рожевий */
-        select.a-90A, td.a-90A { background-color: #00cec9; color: #000; } /* Бірюзовий */
-        select.a-100A, td.a-100A{background-color: #0984e3; color: #fff; } /* Синій */
-        select.a-SPACE, td.a-SPACE{background-color: #111; color: #555; border-color:#222;}
+        /* Кольори автоматів для карток */
+        select.a-15A { background-color: #2c2c2c; color: #fff; }
+        select.a-20A { background-color: #f1c40f; color: #000; }
+        select.a-30A { background-color: #2ecc71; color: #000; }
+        select.a-40A { background-color: #e67e22; color: #000; }
+        select.a-50A { background-color: #e74c3c; color: #fff; }
+        select.a-60A { background-color: #9b59b6; color: #fff; }
+        select.a-SPACE{background-color: #111; color: #555; border-color:#222;}
 
-        /* =========================================
-           ІДЕАЛЬНА ТАБЛИЦЯ ВИКЛЮЧНО ДЛЯ ДРУКУ
-           ========================================= */
-        .print-view { display: none; } /* Ховаємо таблицю на екрані */
-
-        @media print {
-            body { background: #fff; color: #000; margin: 0; padding: 0; }
-            .no-print, .app-view, .app-header, .fab-container { display: none !important; }
-            .print-view { display: block; }
-            
-            table.p-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-family: Arial, sans-serif;
-                font-size: 11px;
-            }
-            .p-table th, .p-table td {
-                border: 1.5px solid #000;
-                padding: 6px 4px;
-                text-align: center;
-                vertical-align: middle;
-            }
-            .p-table th { background-color: #e0e0e0; font-weight: bold; }
-            .p-table td.text-left { text-align: left; padding-left: 8px; }
-            
-            /* Номери автоматів */
-            .p-table td.num { background-color: #f4f4f4; font-weight: bold; width: 40px; font-size: 13px; }
-            .p-table td.num.phase-blue { background-color: #00aaff !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-            /* Кольори для друку (роблю їх яскравішими) */
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            td.a-15A { background-color: white !important; color: black !important; }
-            td.a-20A { background-color: #fff59d !important; color: black !important; font-weight: bold; }
-            td.a-30A { background-color: #a5d6a7 !important; color: black !important; font-weight: bold; }
-            td.a-40A { background-color: #ffcc80 !important; color: black !important; font-weight: bold; }
-            td.a-SPACE{ background-color: #eeeeee !important; color: #888 !important; }
+        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ ГЕНЕРАЦІЇ КАРТИНКИ */
+        /* Робимо її фіксованої ширини, щоб вона не сплющувалась на телефоні */
+        .print-view-wrapper {
+            position: absolute; top: -9999px; left: -9999px; /* Ховаємо за екраном */
+            width: 900px; /* Імітуємо ширину комп'ютера/паперу */
+            background: #fff; padding: 20px;
         }
+        
+        table.p-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: #000; }
+        .p-table th, .p-table td { border: 2px solid #000; padding: 8px 5px; text-align: center; vertical-align: middle; color: #000; }
+        .p-table th { background-color: #e0e0e0; font-weight: bold; }
+        .p-table td.text-left { text-align: left; padding-left: 10px; }
+        .p-table td.num { background-color: #f4f4f4; font-weight: bold; width: 45px; font-size: 14px; }
+        .p-table td.num.phase-blue { background-color: #00aaff !important; color: white !important; }
+
+        td.a-15A { background-color: white !important; color: black !important; }
+        td.a-20A { background-color: #fff59d !important; color: black !important; font-weight: bold; }
+        td.a-30A { background-color: #a5d6a7 !important; color: black !important; font-weight: bold; }
+        td.a-40A { background-color: #ffcc80 !important; color: black !important; font-weight: bold; }
+        td.a-50A { background-color: #ef9a9a !important; color: black !important; font-weight: bold; }
+        td.a-60A { background-color: #ce93d8 !important; color: black !important; font-weight: bold; }
+        td.a-SPACE{ background-color: #eeeeee !important; color: #888 !important; }
+
+        /* Модальне вікно для результату */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+        .modal img { max-width: 100%; max-height: 70vh; border-radius: 4px; border: 2px solid #fff; }
+        .modal-text { color: white; margin-bottom: 15px; font-size: 16px; text-align: center; font-weight: bold; }
+        .modal-close { margin-top: 20px; background: #dc3545; color: white; padding: 12px 30px; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <!-- ВЕРХНЯ ПАНЕЛЬ (Кнопки) -->
-    <div class="app-header no-print">
+    <div class="app-header">
         <h1 id="ui-title">⚡ Panel Schedule</h1>
         <div class="top-controls">
             <button class="btn-lang" onclick="setLang('uk')">🇺🇦 Укр</button>
             <button class="btn-lang" onclick="setLang('en')">🇬🇧 Eng</button>
         </div>
-        <button class="btn-print" onclick="window.print()" id="ui-print">🖨️ Друк / Print Table</button>
+        <button class="btn-print" onclick="generateImage()" id="ui-print">📸 Зробити картинку таблиці</button>
     </div>
 
-    <!-- МОБІЛЬНИЙ ІНТЕРФЕЙС (КАРТКИ) -->
+    <!-- МОБІЛЬНИЙ ІНТЕРФЕЙС -->
     <div class="app-view" id="app-view"></div>
 
-    <!-- КЛАСИЧНА ТАБЛИЦЯ ДЛЯ ДРУКУ (Прихована на екрані) -->
-    <div class="print-view" id="print-view"></div>
+    <!-- ТАБЛИЦЯ ДЛЯ ГЕНЕРАЦІЇ КАРТИНКИ (Схована за екраном) -->
+    <div class="print-view-wrapper" id="print-view"></div>
 
-    <!-- КНОПКИ ДОДАВАННЯ/ВИДАЛЕННЯ ЗНИЗУ -->
-    <div class="fab-container no-print">
+    <div class="fab-container">
         <button class="fab fab-add" onclick="addRow()" id="ui-add">➕ Додати ряд</button>
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Видалити</button>
     </div>
 
+    <!-- ВІКНО З ГОТОВОЮ КАРТИНКОЮ -->
+    <div class="modal" id="image-modal">
+        <div class="modal-text" id="ui-modal-text">Затисни картинку пальцем, щоб Зберегти / Поділитися</div>
+        <img id="result-img" src="" alt="Panel Image">
+        <button class="modal-close" onclick="closeModal()">✖ Закрити</button>
+    </div>
+
     <script>
-        // Словник перекладу
         const i18n = {
             uk: {
                 title: "⚡ Електрощит", wire: "Провід (напр. 14/2)", desc: "Опис ланцюга",
                 amps: "Струм", poles: "Полюси", add: "➕ Додати", rem: "➖ Видалити",
-                print: "🖨️ Друкувати щит", linked: "↳ Об'єднано з #"
+                print: "📸 Зробити картинку таблиці", linked: "↳ Об'єднано з #", 
+                loading: "⏳ Генерую...", hint: "Затисни картинку пальцем, щоб Зберегти в Галерею"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire (e.g. 14/2)", desc: "Description",
                 amps: "Amps", poles: "Poles", add: "➕ Add Row", rem: "➖ Remove",
-                print: "🖨️ Print Panel", linked: "↳ Linked to #"
+                print: "📸 Generate Image", linked: "↳ Linked to #",
+                loading: "⏳ Generating...", hint: "Long press the image to Save to Gallery"
             }
         };
 
         let currentLang = 'uk';
-        let totalRows = 6; // Стартуємо з 12 автоматів (6 рядів)
+        let totalRows = 6;
         let panelData = {};
+        const ampOptions = ["15A", "20A", "30A", "40A", "50A", "60A", "SPACE"];
 
-        const ampOptions = ["15A", "20A", "30A", "40A", "50A", "60A", "70A", "90A", "100A", "SPACE"];
-
-        // Ініціалізація початкових даних
         for (let i = 1; i <= totalRows * 2; i++) {
             panelData[i] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
         }
@@ -236,101 +145,61 @@
             document.getElementById('ui-print').innerText = i18n[lang].print;
             document.getElementById('ui-add').innerText = i18n[lang].add;
             document.getElementById('ui-rem').innerText = i18n[lang].rem;
+            document.getElementById('ui-modal-text').innerText = i18n[lang].hint;
             renderAll();
         }
 
         function addRow() {
             totalRows++;
-            let leftId = (totalRows * 2) - 1;
-            let rightId = totalRows * 2;
+            let leftId = (totalRows * 2) - 1; let rightId = totalRows * 2;
             panelData[leftId] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
             panelData[rightId] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
             renderAll();
         }
 
         function removeRow() {
-            if (totalRows <= 1) return; // Мінімум 1 ряд
-            let leftId = (totalRows * 2) - 1;
-            let rightId = totalRows * 2;
-            delete panelData[leftId];
-            delete panelData[rightId];
+            if (totalRows <= 1) return;
+            let leftId = (totalRows * 2) - 1; let rightId = totalRows * 2;
+            delete panelData[leftId]; delete panelData[rightId];
             totalRows--;
             renderAll();
         }
 
-        // Оновлення тексту (БЕЗ перемальовування всього екрану, щоб не ховалась клавіатура)
-        function updateText(id, field, value) {
-            panelData[id][field] = value;
-            renderPrintView(); // Оновлюємо лише приховану таблицю для друку
-        }
-
-        // Оновлення Струму
+        function updateText(id, field, value) { panelData[id][field] = value; renderPrintView(); }
+        
         function updateAmps(id, value) {
             panelData[id].amps = value;
-            // Копіюємо ампери підпорядкованим автоматам
-            for (let i in panelData) {
-                if (panelData[i].master === id) panelData[i].amps = value;
-            }
+            for (let i in panelData) { if (panelData[i].master === id) panelData[i].amps = value; }
             renderAll();
         }
 
-        // Логіка багатополюсних автоматів (2 Pole / 3 Pole)
         function updatePoles(id, value) {
             let poles = parseInt(value);
-            
-            // Відв'язуємо старі автомати
-            for (let i in panelData) {
-                if (panelData[i].master === id) panelData[i].master = null;
-            }
+            for (let i in panelData) { if (panelData[i].master === id) panelData[i].master = null; }
             panelData[id].poles = poles;
 
-            // Якщо не вистачає рядів знизу — додаємо автоматично
             let maxNeededId = id + ((poles - 1) * 2); 
             let neededRows = Math.ceil(maxNeededId / 2);
             while (totalRows < neededRows) addRow();
 
-            // Прив'язуємо нові
-            if (poles > 1) {
-                panelData[id + 2].master = id;
-                panelData[id + 2].poles = 1;
-                panelData[id + 2].amps = panelData[id].amps;
-            }
-            if (poles > 2) {
-                panelData[id + 4].master = id;
-                panelData[id + 4].poles = 1;
-                panelData[id + 4].amps = panelData[id].amps;
-            }
+            if (poles > 1) { panelData[id + 2].master = id; panelData[id + 2].poles = 1; panelData[id + 2].amps = panelData[id].amps; }
+            if (poles > 2) { panelData[id + 4].master = id; panelData[id + 4].poles = 1; panelData[id + 4].amps = panelData[id].amps; }
             renderAll();
         }
 
-        // Головна функція рендеру
-        function renderAll() {
-            renderAppView();
-            renderPrintView();
-        }
+        function renderAll() { renderAppView(); renderPrintView(); }
 
-        // 1. РЕНДЕР КАРТОК ДЛЯ ТЕЛЕФОНУ
         function renderAppView() {
-            let html = '';
-            let lang = i18n[currentLang];
-
+            let html = ''; let lang = i18n[currentLang];
             for (let i = 1; i <= totalRows * 2; i++) {
-                let d = panelData[i];
-                let isSlave = d.master !== null;
-                
-                // Колір фази (Кожен третій ряд - синій)
-                let rowNum = Math.ceil(i / 2);
-                let isBlue = (rowNum % 3 === 0) ? 'phase-blue' : '';
+                let d = panelData[i]; let isSlave = d.master !== null;
+                let isBlue = (Math.ceil(i / 2) % 3 === 0) ? 'phase-blue' : '';
                 let slaveClass = isSlave ? 'slave' : '';
 
-                // Генерація опцій струму
                 let ampSelect = `<select class="b-amps a-${d.amps}" onchange="updateAmps(${i}, this.value)">`;
-                ampOptions.forEach(opt => {
-                    ampSelect += `<option value="${opt}" ${d.amps === opt ? 'selected' : ''}>${opt}</option>`;
-                });
+                ampOptions.forEach(opt => { ampSelect += `<option value="${opt}" ${d.amps === opt ? 'selected' : ''}>${opt}</option>`; });
                 ampSelect += `</select>`;
 
-                // Генерація опцій полюсів
                 let poleSelect = `<select class="b-poles" onchange="updatePoles(${i}, this.value)">
                     <option value="1" ${d.poles == 1 ? 'selected' : ''}>1 Pole</option>
                     <option value="2" ${d.poles == 2 ? 'selected' : ''}>2 Pole</option>
@@ -352,73 +221,74 @@
             document.getElementById('app-view').innerHTML = html;
         }
 
-        // 2. РЕНДЕР ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ ДРУКУ (З об'єднанням комірок)
         function renderPrintView() {
             let lang = i18n[currentLang];
-            let html = `<table class="p-table">
-                <thead>
-                    <tr>
-                        <th>${lang.wire}</th><th>${lang.desc}</th><th>${lang.amps}</th><th>${lang.poles}</th><th>#</th>
-                        <th>#</th><th>${lang.poles}</th><th>${lang.amps}</th><th>${lang.desc}</th><th>${lang.wire}</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+            let html = `<table class="p-table"><thead><tr>
+                <th>${lang.wire}</th><th>${lang.desc}</th><th>${lang.amps}</th><th>${lang.poles}</th><th>#</th>
+                <th>#</th><th>${lang.poles}</th><th>${lang.amps}</th><th>${lang.desc}</th><th>${lang.wire}</th>
+            </tr></thead><tbody>`;
 
-            let skipLeft = 0;
-            let skipRight = 0;
+            let skipLeft = 0; let skipRight = 0;
 
             for (let row = 1; row <= totalRows; row++) {
-                let idL = (row * 2) - 1;
-                let idR = row * 2;
-                let dL = panelData[idL];
-                let dR = panelData[idR];
-                
+                let idL = (row * 2) - 1; let idR = row * 2;
+                let dL = panelData[idL]; let dR = panelData[idR];
                 let isBlue = (row % 3 === 0) ? 'phase-blue' : '';
-                
                 html += `<tr>`;
 
-                // ЛІВА СТОРОНА
+                // ЛІВА
                 if (skipLeft > 0) {
-                    html += `<td class="text-left">${dL.wire}</td>`;
-                    html += `<td class="text-left">${dL.desc}</td>`;
-                    html += `<td class="num ${isBlue}">${idL}</td>`;
+                    html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="num ${isBlue}">${idL}</td>`;
                     skipLeft--;
                 } else {
                     let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : '';
-                    html += `<td class="text-left">${dL.wire}</td>`;
-                    html += `<td class="text-left">${dL.desc}</td>`;
-                    html += `<td class="a-${dL.amps}" ${rs}>${dL.amps}</td>`;
-                    html += `<td ${rs}>${dL.poles}</td>`;
-                    html += `<td class="num ${isBlue}">${idL}</td>`;
+                    html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="a-${dL.amps}" ${rs}>${dL.amps}</td><td ${rs}>${dL.poles}</td><td class="num ${isBlue}">${idL}</td>`;
                     if (dL.poles > 1) skipLeft = dL.poles - 1;
                 }
 
-                // ПРАВА СТОРОНА
+                // ПРАВА
                 if (skipRight > 0) {
-                    html += `<td class="num ${isBlue}">${idR}</td>`;
-                    html += `<td class="text-left">${dR.desc}</td>`;
-                    html += `<td class="text-left">${dR.wire}</td>`;
+                    html += `<td class="num ${isBlue}">${idR}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`;
                     skipRight--;
                 } else {
                     let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : '';
-                    html += `<td class="num ${isBlue}">${idR}</td>`;
-                    html += `<td ${rs}>${dR.poles}</td>`;
-                    html += `<td class="a-${dR.amps}" ${rs}>${dR.amps}</td>`;
-                    html += `<td class="text-left">${dR.desc}</td>`;
-                    html += `<td class="text-left">${dR.wire}</td>`;
+                    html += `<td class="num ${isBlue}">${idR}</td><td ${rs}>${dR.poles}</td><td class="a-${dR.amps}" ${rs}>${dR.amps}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`;
                     if (dR.poles > 1) skipRight = dR.poles - 1;
                 }
-
                 html += `</tr>`;
             }
-            
             html += `</tbody></table>`;
             document.getElementById('print-view').innerHTML = html;
         }
 
-        // Запуск
-        setLang(currentLang);
+        // МАГІЯ ГЕНЕРАЦІЇ КАРТИНКИ
+        function generateImage() {
+            let btn = document.getElementById('ui-print');
+            let originalText = btn.innerText;
+            btn.innerText = i18n[currentLang].loading;
+            btn.disabled = true;
 
+            let target = document.getElementById('print-view');
+            
+            // Робимо скріншот прихованої ідеальної таблиці
+            html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+                document.getElementById('result-img').src = canvas.toDataURL("image/png");
+                document.getElementById('image-modal').style.display = 'flex'; // Показуємо вікно з картинкою
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                alert("Помилка генерації картинки: " + err);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+
+        setLang(currentLang);
     </script>
 </body>
 </html>
