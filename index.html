@@ -85,13 +85,11 @@
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
-        /* МОДАЛЬНІ ВІКНА */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: #1e1e1e; padding: 20px; border-radius: 12px; width: 100%; max-width: 450px; border: 1px solid #444; }
+        .modal-content { background: #1e1e1e; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #444; }
         .modal-content h3 { margin-top: 0; color: #fff; text-align: center; }
-        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; border: 1px solid #555; background: #2a2a2a; color: #fff; font-size: 14px; }
-        .modal-content textarea { height: 120px; resize: none; font-family: monospace; }
-        .modal-buttons { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; }
+        .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 6px; border: 1px solid #555; background: #2a2a2a; color: #fff; font-size: 16px; }
+        .modal-buttons { display: flex; justify-content: space-between; gap: 10px; }
         .modal-buttons button { flex: 1; }
         
         .panel-list { max-height: 50vh; overflow-y: auto; margin-bottom: 15px; }
@@ -119,8 +117,9 @@
             <button class="btn-file" onclick="newPanel()" id="ui-btn-new">📄 New</button>
             <button class="btn-file" onclick="openSaveModal()" id="ui-btn-save">💾 Save</button>
             <button class="btn-file" onclick="openLoadModal()" id="ui-btn-load">📂 Open</button>
-            <button class="btn-file" onclick="openExportModal()" id="ui-btn-export">📤 Export</button>
-            <button class="btn-file" onclick="openImportModal()" id="ui-btn-import">📥 Import</button>
+            <button class="btn-file" onclick="exportDataFile()" id="ui-btn-export">📤 Export</button>
+            <button class="btn-file" onclick="document.getElementById('import-file').click()" id="ui-btn-import">📥 Import</button>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importDataFile(event)">
         </div>
     </div>
 
@@ -150,7 +149,6 @@
         <button class="btn-close-img" onclick="closeModal('image-modal')" id="ui-btn-close">✖ Close</button>
     </div>
 
-    <!-- МОДАЛКА: Зберегти щит -->
     <div class="modal" id="save-modal">
         <div class="modal-content">
             <h3 id="ui-save-title">Save Panel</h3>
@@ -162,38 +160,11 @@
         </div>
     </div>
 
-    <!-- МОДАЛКА: Завантажити щит -->
     <div class="modal" id="load-modal">
         <div class="modal-content">
             <h3 id="ui-load-title">Saved Panels</h3>
             <div class="panel-list" id="saved-panels-list"></div>
             <button style="background: #555; color: white; width: 100%; margin-top: 10px;" onclick="closeModal('load-modal')" id="ui-load-cancel">Close</button>
-        </div>
-    </div>
-
-    <!-- МОДАЛКА: Експорт (Текстовий код) -->
-    <div class="modal" id="export-modal">
-        <div class="modal-content">
-            <h3 id="ui-export-title">Export Backup</h3>
-            <p style="font-size: 12px; color: #aaa; text-align: center; margin: 0 0 5px 0;" id="ui-export-desc">Copy this code to transfer your data:</p>
-            <textarea id="export-textarea" readonly></textarea>
-            <div class="modal-buttons">
-                <button style="background: #555; color: white;" onclick="closeModal('export-modal')" id="ui-export-close">Close</button>
-                <button style="background: #007bff; color: white;" onclick="copyExportText()" id="ui-export-copy">📋 Copy</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛКА: Імпорт (Вставка тексту) -->
-    <div class="modal" id="import-modal">
-        <div class="modal-content">
-            <h3 id="ui-import-title">Import Backup</h3>
-            <p style="font-size: 12px; color: #aaa; text-align: center; margin: 0 0 5px 0;" id="ui-import-desc">Paste backup code here:</p>
-            <textarea id="import-textarea" placeholder="Paste JSON here..."></textarea>
-            <div class="modal-buttons">
-                <button style="background: #555; color: white;" onclick="closeModal('import-modal')" id="ui-import-cancel">Cancel</button>
-                <button style="background: #28a745; color: white;" onclick="applyImport()" id="ui-import-ok">Import</button>
-            </div>
         </div>
     </div>
 
@@ -209,9 +180,7 @@
                 loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
                 savePlaceholder: "Назва щита",
                 leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)",
-                exportTitle: "Експорт бекапу", exportDesc: "Скопіюйте цей код для перенесення на інший пристрій:", exportCopy: "📋 Скопіювати",
-                importTitle: "Імпорт бекапу", importDesc: "Вставте код бекапу сюди:", importOk: "Імпортувати",
-                importedOk: "Дані успішно імпортовано!", importErr: "Помилка! Невірний формат коду.", copied: "Скопійовано!"
+                importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire", desc: "Description",
@@ -223,9 +192,7 @@
                 loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
                 savePlaceholder: "Panel Name",
                 leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)",
-                exportTitle: "Export Backup", exportDesc: "Copy this code to transfer your data:", exportCopy: "📋 Copy",
-                importTitle: "Import Backup", importDesc: "Paste backup code here:", importOk: "Import",
-                importedOk: "Data imported successfully!", importErr: "Error! Invalid code format.", copied: "Copied!"
+                importedOk: "Data imported successfully!", importErr: "File read error!"
             }
         };
 
@@ -290,16 +257,6 @@
             
             document.getElementById('ui-load-title').innerText = t.loadTitle;
             document.getElementById('ui-load-cancel').innerText = t.loadCancel;
-
-            document.getElementById('ui-export-title').innerText = t.exportTitle;
-            document.getElementById('ui-export-desc').innerText = t.exportDesc;
-            document.getElementById('ui-export-copy').innerText = t.exportCopy;
-            document.getElementById('ui-export-close').innerText = t.btnClose;
-
-            document.getElementById('ui-import-title').innerText = t.importTitle;
-            document.getElementById('ui-import-desc').innerText = t.importDesc;
-            document.getElementById('ui-import-ok').innerText = t.importOk;
-            document.getElementById('ui-import-cancel').innerText = t.saveCancel;
 
             document.getElementById('tab-left').innerText = t.leftTab;
             document.getElementById('tab-right').innerText = t.rightTab;
@@ -450,45 +407,52 @@
             });
         }
 
-        // --- ЕКСПОРТ ТА ІМПОРТ ЧЕРЕЗ ТЕКСТ (Працює в Telegram на 100%) ---
-        function openExportModal() {
+        // --- ЕКСПОРТ ТА ІМПОРТ ФАЙЛУ (Data URI для сумісності з мобільними) ---
+        function exportDataFile() {
             const dataToExport = {
                 autosave: localStorage.getItem('panel_autosave'),
                 saved_list: localStorage.getItem('panel_saved_list')
             };
-            document.getElementById('export-textarea').value = JSON.stringify(dataToExport);
-            document.getElementById('export-modal').style.display = 'flex';
+            const jsonStr = JSON.stringify(dataToExport, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonStr);
+            
+            const a = document.createElement('a');
+            a.href = dataUri;
+            a.download = 'electrical-panels-backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        function copyExportText() {
-            const textarea = document.getElementById('export-textarea');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                let btn = document.getElementById('ui-export-copy');
-                let origText = btn.innerText;
-                btn.innerText = i18n[currentLang].copied;
-                setTimeout(() => btn.innerText = origText, 2000);
-            });
-        }
-
-        function openImportModal() {
-            document.getElementById('import-textarea').value = "";
-            document.getElementById('import-modal').style.display = 'flex';
-        }
-
-        function applyImport() {
-            let text = document.getElementById('import-textarea').value.trim();
-            try {
-                const imported = JSON.parse(text);
-                if (imported.autosave) localStorage.setItem('panel_autosave', imported.autosave);
-                if (imported.saved_list) localStorage.setItem('panel_saved_list', imported.saved_list);
-                initApp();
-                closeModal('import-modal');
-                alert(i18n[currentLang].importedOk);
-            } catch (err) {
-                alert(i18n[currentLang].importErr);
-            }
+        function importDataFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    // Відновлюємо автозбереження
+                    if (imported.autosave) {
+                        localStorage.setItem('panel_autosave', imported.autosave);
+                    }
+                    
+                    // АКУРАТНЕ ОБ'ЄДНАННЯ (Merge) збережених щитів, щоб старі не видалялися!
+                    if (imported.saved_list) {
+                        let currentSaved = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
+                        let importedSaved = JSON.parse(imported.saved_list);
+                        let mergedSaved = { ...currentSaved, ...importedSaved };
+                        localStorage.setItem('panel_saved_list', JSON.stringify(mergedSaved));
+                    }
+                    
+                    initApp();
+                    alert(i18n[currentLang].importedOk);
+                } catch (err) {
+                    alert(i18n[currentLang].importErr);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         // --- МЕНЕДЖЕР ЩИТІВ ---
