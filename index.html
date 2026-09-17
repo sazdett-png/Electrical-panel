@@ -100,19 +100,16 @@
     <div class="app-header">
         <h1 id="ui-title">⚡ Panel Schedule</h1>
         
-        <!-- Керування мовою -->
         <div class="top-controls">
             <button class="btn-lang" onclick="setLang('uk')">🇺🇦 Укр</button>
-            <button class="btn-lang" onclick="setLang('en')">🇬🇧 Eng</button>
+            <button class="btn-lang" onclick="setLang('en')">🇨🇦 Eng</button>
         </div>
 
-        <!-- Керування збереженням (Менеджер файлів) -->
         <div class="file-controls">
             <button class="btn-file" onclick="newPanel()" id="ui-btn-new">📄 Новий</button>
             <button class="btn-file" onclick="openSaveModal()" id="ui-btn-save">💾 Зберегти</button>
             <button class="btn-file" onclick="openLoadModal()" id="ui-btn-load">📂 Відкрити</button>
         </div>
-        
     </div>
 
     <div class="app-view" id="app-view"></div>
@@ -126,18 +123,16 @@
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Видалити</button>
     </div>
 
-    <!-- МОДАЛКА: Картинка -->
     <div class="modal" id="image-modal">
         <div class="modal-text" id="ui-modal-text">Затисни картинку пальцем, щоб Зберегти</div>
         <img id="result-img" src="" alt="Panel Image">
         <button class="btn-close-img" onclick="closeModal('image-modal')" id="ui-btn-close">✖ Закрити</button>
     </div>
 
-    <!-- МОДАЛКА: Зберегти щит -->
     <div class="modal" id="save-modal">
         <div class="modal-content">
             <h3 id="ui-save-title">Зберегти щит</h3>
-            <input type="text" id="panel-name-input" placeholder="Наприклад: Щит 1 поверх">
+            <input type="text" id="panel-name-input" placeholder="">
             <div class="modal-buttons">
                 <button style="background: #555; color: white;" onclick="closeModal('save-modal')" id="ui-save-cancel">Скасувати</button>
                 <button style="background: #28a745; color: white;" onclick="savePanel()" id="ui-save-ok">Зберегти</button>
@@ -145,13 +140,10 @@
         </div>
     </div>
 
-    <!-- МОДАЛКА: Завантажити щит -->
     <div class="modal" id="load-modal">
         <div class="modal-content">
             <h3 id="ui-load-title">Збережені щити</h3>
-            <div class="panel-list" id="saved-panels-list">
-                <!-- Тут будуть щити -->
-            </div>
+            <div class="panel-list" id="saved-panels-list"></div>
             <button style="background: #555; color: white; width: 100%; margin-top: 10px;" onclick="closeModal('load-modal')" id="ui-load-cancel">Закрити</button>
         </div>
     </div>
@@ -159,20 +151,22 @@
     <script>
         const i18n = {
             uk: {
-                title: "⚡ Електрощит", wire: "Провід (напр. 14/2)", desc: "Опис ланцюга",
+                title: "⚡ Електрощит", wire: "Провід", desc: "Опис ланцюга",
                 amps: "Струм", poles: "Полюси", add: "➕ Додати", rem: "➖ Видалити",
                 print: "📸 Зробити картинку", linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
                 btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnClose: "✖ Закрити",
                 saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти",
-                loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів"
+                loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
+                savePlaceholder: "Назва щита"
             },
             en: {
-                title: "⚡ Panel Schedule", wire: "Wire (e.g. 14/2)", desc: "Description",
+                title: "⚡ Panel Schedule", wire: "Wire", desc: "Description",
                 amps: "Amps", poles: "Poles", add: "➕ Add", rem: "➖ Remove",
                 print: "📸 Generate Image", linked: "↳ Linked to #", hint: "Long press the image to Save",
                 btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnClose: "✖ Close",
                 saveTitle: "Save Panel As", saveCancel: "Cancel", saveOk: "Save",
-                loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels"
+                loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
+                savePlaceholder: "Panel Name"
             }
         };
 
@@ -181,9 +175,6 @@
         let panelData = {};
         const ampOptions = ["15A", "20A", "30A", "40A", "50A", "60A", "SPACE"];
 
-        // === СИСТЕМА ПАМ'ЯТІ (LocalStorage) ===
-        
-        // Ініціалізація або завантаження останнього автозбереження
         function initApp() {
             const autosave = localStorage.getItem('panel_autosave');
             if (autosave) {
@@ -204,7 +195,6 @@
             }
         }
 
-        // Автозбереження поточного стану
         function triggerAutosave() {
             const state = { totalRows: totalRows, panelData: panelData };
             localStorage.setItem('panel_autosave', JSON.stringify(state));
@@ -227,13 +217,13 @@
             document.getElementById('ui-save-title').innerText = t.saveTitle;
             document.getElementById('ui-save-cancel').innerText = t.saveCancel;
             document.getElementById('ui-save-ok').innerText = t.saveOk;
+            document.getElementById('panel-name-input').placeholder = t.savePlaceholder;
+            
             document.getElementById('ui-load-title').innerText = t.loadTitle;
             document.getElementById('ui-load-cancel').innerText = t.loadCancel;
             
             renderAll();
         }
-
-        // --- ЛОГІКА ІНТЕРФЕЙСУ ---
 
         function addRow() {
             totalRows++;
@@ -330,11 +320,33 @@
                 let isBlue = (row % 3 === 0) ? 'phase-blue' : '';
                 html += `<tr>`;
 
-                if (skipLeft > 0) { html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="num ${isBlue}">${idL}</td>`; skipLeft--; } 
-                else { let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : ''; html += `<td class="text-left">${dL.wire}</td><td class="text-left">${dL.desc}</td><td class="a-${dL.amps}" ${rs}>${dL.amps}</td><td ${rs}>${dL.poles}</td><td class="num ${isBlue}">${idL}</td>`; if (dL.poles > 1) skipLeft = dL.poles - 1; }
+                // ЛІВА ЧАСТИНА
+                if (skipLeft > 0) { 
+                    html += `<td class="num ${isBlue}">${idL}</td>`; 
+                    skipLeft--; 
+                } else { 
+                    let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : ''; 
+                    html += `<td class="text-left" ${rs}>${dL.wire}</td>`;
+                    html += `<td class="text-left" ${rs}>${dL.desc}</td>`;
+                    html += `<td class="a-${dL.amps}" ${rs}>${dL.amps}</td>`;
+                    html += `<td ${rs}>${dL.poles}</td>`;
+                    html += `<td class="num ${isBlue}">${idL}</td>`; 
+                    if (dL.poles > 1) skipLeft = dL.poles - 1; 
+                }
 
-                if (skipRight > 0) { html += `<td class="num ${isBlue}">${idR}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`; skipRight--; } 
-                else { let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : ''; html += `<td class="num ${isBlue}">${idR}</td><td ${rs}>${dR.poles}</td><td class="a-${dR.amps}" ${rs}>${dR.amps}</td><td class="text-left">${dR.desc}</td><td class="text-left">${dR.wire}</td>`; if (dR.poles > 1) skipRight = dR.poles - 1; }
+                // ПРАВА ЧАСТИНА
+                if (skipRight > 0) { 
+                    html += `<td class="num ${isBlue}">${idR}</td>`; 
+                    skipRight--; 
+                } else { 
+                    let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : ''; 
+                    html += `<td class="num ${isBlue}">${idR}</td>`;
+                    html += `<td ${rs}>${dR.poles}</td>`;
+                    html += `<td class="a-${dR.amps}" ${rs}>${dR.amps}</td>`;
+                    html += `<td class="text-left" ${rs}>${dR.desc}</td>`;
+                    html += `<td class="text-left" ${rs}>${dR.wire}</td>`; 
+                    if (dR.poles > 1) skipRight = dR.poles - 1; 
+                }
                 
                 html += `</tr>`;
             }
@@ -354,8 +366,7 @@
             });
         }
 
-        // --- ЛОГІКА МЕНЕДЖЕРА ЩИТІВ ---
-
+        // --- МЕНЕДЖЕР ЩИТІВ ---
         function openSaveModal() {
             document.getElementById('panel-name-input').value = "";
             document.getElementById('save-modal').style.display = 'flex';
@@ -407,7 +418,7 @@
             let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
             delete savedPanels[name];
             localStorage.setItem('panel_saved_list', JSON.stringify(savedPanels));
-            openLoadModal(); // Оновлюємо список
+            openLoadModal();
         }
 
         function newPanel() {
@@ -423,7 +434,6 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        // Старт програми
         initApp();
 
     </script>
