@@ -29,7 +29,8 @@
         .btn-lang { background-color: #2c2c2c; color: #fff; border: 1px solid #444; }
         .btn-file { background-color: #444; color: #fff; border: 1px solid #555; }
         .btn-file:hover { background-color: #555; }
-        .btn-print { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; font-size: 16px; padding: 14px; margin: 0 auto; display: block;}
+        .btn-action { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; font-size: 16px; padding: 14px; margin: 10px auto 0 auto; display: block;}
+        .btn-print { background-color: #6c757d; }
 
         .app-view { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 900px; margin: 0 auto 20px auto; }
 
@@ -63,7 +64,7 @@
         select.a-60A { background-color: #9b59b6; color: #fff; }
         select.a-SPACE{background-color: #111; color: #555; border-color:#222;}
 
-        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ КАРТИНКИ */
+        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ ДРУКУ ТА ПДФ */
         .print-view-wrapper { position: absolute; top: -9999px; left: -9999px; width: 900px; background: #fff; padding: 20px; }
         table.p-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: #000; }
         .p-table th, .p-table td { border: 2px solid #000; padding: 8px 5px; text-align: center; vertical-align: middle; color: #000; }
@@ -79,6 +80,13 @@
         td.a-50A { background-color: #ef9a9a !important; color: black !important; font-weight: bold; }
         td.a-60A { background-color: #ce93d8 !important; color: black !important; font-weight: bold; }
         td.a-SPACE{ background-color: #eeeeee !important; color: #888 !important; }
+
+        @media print {
+            body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; }
+            .app-header, .tab-controls, .app-view, .fab-container, .modal, .btn-action { display: none !important; }
+            .print-view-wrapper { position: static !important; width: 100% !important; padding: 0 !important; background: #fff !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
 
         /* МОДАЛЬНІ ВІКНА */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
@@ -113,6 +121,9 @@
             <button class="btn-file" onclick="newPanel()" id="ui-btn-new">📄 New</button>
             <button class="btn-file" onclick="openSaveModal()" id="ui-btn-save">💾 Save</button>
             <button class="btn-file" onclick="openLoadModal()" id="ui-btn-load">📂 Open</button>
+            <button class="btn-file" onclick="exportData()" id="ui-btn-export">📤 Export</button>
+            <button class="btn-file" onclick="document.getElementById('import-file').click()" id="ui-btn-import">📥 Import</button>
+            <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
         </div>
     </div>
 
@@ -124,7 +135,10 @@
 
     <div class="app-view" id="app-view"></div>
 
-    <button class="btn-print" onclick="generateImage()" id="ui-print">📸 Generate Image</button>
+    <div style="max-width: 400px; margin: 0 auto;">
+        <button class="btn-action" onclick="generateImage()" id="ui-print-img">📸 Generate Image</button>
+        <button class="btn-action btn-print" onclick="window.print()" id="ui-print-pdf">🖨️ Print / Save PDF</button>
+    </div>
 
     <div class="print-view-wrapper" id="print-view"></div>
 
@@ -163,27 +177,31 @@
             uk: {
                 title: "⚡ Електрощит", wire: "Провід", desc: "Опис ланцюга",
                 amps: "Струм", poles: "Полюси", add: "➕ Додати", rem: "➖ Видалити",
-                print: "📸 Зробити картинку", linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
-                btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnClose: "✖ Закрити",
+                printImg: "📸 Зробити картинку", printPdf: "🖨️ Друк / Зберегти PDF",
+                linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
+                btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnExport: "📤 Експорт", btnImport: "📥 Імпорт", btnClose: "✖ Закрити",
                 saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти",
                 loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
                 savePlaceholder: "Назва щита",
-                leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)"
+                leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)",
+                importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire", desc: "Description",
                 amps: "Amps", poles: "Poles", add: "➕ Add", rem: "➖ Remove",
-                print: "📸 Generate Image", linked: "↳ Linked to #", hint: "Long press the image to Save",
-                btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnClose: "✖ Close",
+                printImg: "📸 Generate Image", printPdf: "🖨️ Print / Save PDF",
+                linked: "↳ Linked to #", hint: "Long press the image to Save",
+                btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnExport: "📤 Export", btnImport: "📥 Import", btnClose: "✖ Close",
                 saveTitle: "Save Panel", saveCancel: "Cancel", saveOk: "Save",
                 loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
                 savePlaceholder: "Panel Name",
-                leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)"
+                leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)",
+                importedOk: "Data imported successfully!", importErr: "File read error!"
             }
         };
 
-        let currentLang = 'en'; // МОВА ЗА ЗАМОВЧУВАННЯМ - АНГЛІЙСЬКА
-        let activeTab = 'left'; // Активна вкладка ('left' або 'right')
+        let currentLang = 'en';
+        let activeTab = 'left';
         let totalRows = 6;
         let panelData = {};
         const ampOptions = ["15A", "20A", "30A", "40A", "50A", "60A", "SPACE"];
@@ -224,7 +242,8 @@
             currentLang = lang;
             const t = i18n[lang];
             document.getElementById('ui-title').innerText = t.title;
-            document.getElementById('ui-print').innerText = t.print;
+            document.getElementById('ui-print-img').innerText = t.printImg;
+            document.getElementById('ui-print-pdf').innerText = t.printPdf;
             document.getElementById('ui-add').innerText = t.add;
             document.getElementById('ui-rem').innerText = t.rem;
             document.getElementById('ui-modal-text').innerText = t.hint;
@@ -232,6 +251,8 @@
             document.getElementById('ui-btn-new').innerText = t.btnNew;
             document.getElementById('ui-btn-save').innerText = t.btnSave;
             document.getElementById('ui-btn-load').innerText = t.btnLoad;
+            document.getElementById('ui-btn-export').innerText = t.btnExport;
+            document.getElementById('ui-btn-import').innerText = t.btnImport;
             document.getElementById('ui-btn-close').innerText = t.btnClose;
             
             document.getElementById('ui-save-title').innerText = t.saveTitle;
@@ -296,7 +317,6 @@
 
         function renderAll() { renderAppView(); renderPrintView(); }
 
-        // Рендер карток залежно від активної вкладки (Left / Right Side)
         function renderAppView() {
             let html = ''; 
             let lang = i18n[currentLang];
@@ -381,7 +401,7 @@
         }
 
         function generateImage() {
-            let btn = document.getElementById('ui-print');
+            let btn = document.getElementById('ui-print-img');
             let originalText = btn.innerText;
             btn.innerText = "⏳..."; btn.disabled = true;
 
@@ -390,6 +410,40 @@
                 document.getElementById('image-modal').style.display = 'flex';
                 btn.innerText = originalText; btn.disabled = false;
             });
+        }
+
+        // --- ЕКСПОРТ ТА ІМПОРТ ДАНИХ ---
+        function exportData() {
+            const dataToExport = {
+                autosave: localStorage.getItem('panel_autosave'),
+                saved_list: localStorage.getItem('panel_saved_list')
+            };
+            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'electrical-panels-backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.autosave) localStorage.setItem('panel_autosave', imported.autosave);
+                    if (imported.saved_list) localStorage.setItem('panel_saved_list', imported.saved_list);
+                    initApp();
+                    alert(i18n[currentLang].importedOk);
+                } catch (err) {
+                    alert(i18n[currentLang].importErr);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Скидаємо інпут, щоб можна було завантажити той самий файл повторно
         }
 
         // --- МЕНЕДЖЕР ЩИТІВ ---
