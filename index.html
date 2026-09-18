@@ -15,7 +15,14 @@
         .top-controls { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
         .file-controls { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; background-color: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;}
         
-        /* Вкладки Left / Right Side */
+        .main-panel-name-input {
+            width: 100%; max-width: 900px; margin: 0 auto 15px auto; display: block;
+            background-color: #1e1e1e; color: #fff; border: 1px solid #444; border-radius: 8px;
+            padding: 14px; font-size: 18px; font-weight: bold; text-align: center;
+        }
+        .main-panel-name-input:focus { outline: 1px solid #007bff; background-color: #2a2a2a; }
+        .main-panel-name-input::placeholder { color: #666; font-weight: normal; }
+
         .tab-controls { display: flex; justify-content: center; gap: 10px; max-width: 900px; margin: 0 auto 20px auto; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; background-color: #222; color: #888; border: 1px solid #444; cursor: pointer; font-size: 15px; transition: all 0.2s; }
         .tab-btn.active { background-color: #007bff; color: #fff; border-color: #0056b3; }
@@ -55,8 +62,7 @@
         .fab-add { background-color: #28a745; color: white; }
         .fab-rem { background-color: #dc3545; color: white; }
 
-        /* КОЛЬОРИ АВТОМАТІВ (Стандарти Канади) */
-        select.b-amps { background-color: #444; color: #fff; } /* За замовчуванням для кастомних */
+        select.b-amps { background-color: #444; color: #fff; }
         select.a-15A, td.a-15A { background-color: #2c2c2c; color: #fff; }
         select.a-20A, td.a-20A { background-color: #f1c40f; color: #000; }
         select.a-25A, td.a-25A { background-color: #d35400; color: #fff; }
@@ -72,8 +78,13 @@
         select.a-100A, td.a-100A { background-color: #0984e3; color: #fff; }
         select.a-SPACE, td.a-SPACE { background-color: #111; color: #555; border-color:#222; }
 
-        /* СТИЛІ ІДЕАЛЬНОЇ ТАБЛИЦІ ДЛЯ ДРУКУ ТА ПДФ */
         .print-view-wrapper { position: absolute; top: -9999px; left: -9999px; width: 900px; background: #fff; padding: 20px; }
+        
+        /* ШАПКА ДЛЯ ДРУКУ */
+        .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .print-header img { max-height: 60px; max-width: 250px; object-fit: contain; }
+        .print-header h2 { margin: 0; font-size: 24px; color: #000; text-transform: uppercase; }
+
         table.p-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: #000; }
         .p-table th, .p-table td { border: 2px solid #000; padding: 8px 5px; text-align: center; vertical-align: middle; color: #000; }
         .p-table th { background-color: #e0e0e0; font-weight: bold; }
@@ -81,10 +92,9 @@
         .p-table td.num { background-color: #f4f4f4; font-weight: bold; width: 45px; font-size: 14px; }
         .p-table td.num.phase-blue { background-color: #00aaff !important; color: white !important; }
 
-        /* Світлі кольори для друку на білому папері */
         @media print {
             body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; }
-            .app-header, .tab-controls, .app-view, .fab-container, .modal, .btn-action { display: none !important; }
+            .app-header, .main-panel-name-input, .tab-controls, .app-view, .fab-container, .modal, .btn-action { display: none !important; }
             .print-view-wrapper { position: static !important; width: 100% !important; padding: 0 !important; background: #fff !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
@@ -104,7 +114,6 @@
             td.a-SPACE { background-color: #eeeeee !important; color: #888 !important; }
         }
 
-        /* МОДАЛЬНІ ВІКНА */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #1e1e1e; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #444; }
         .modal-content h3 { margin-top: 0; color: #fff; text-align: center; }
@@ -143,6 +152,9 @@
         </div>
     </div>
 
+    <!-- ПОЛЕ ДЛЯ НАЗВИ ЩИТА -->
+    <input type="text" id="main-panel-name" class="main-panel-name-input" placeholder="" oninput="updatePanelName(this.value)">
+
     <div class="tab-controls">
         <button class="tab-btn active" id="tab-left" onclick="switchTab('left')">⬅️ Left Side (1, 3, 5...)</button>
         <button class="tab-btn" id="tab-right" onclick="switchTab('right')">➡️ Right Side (2, 4, 6...)</button>
@@ -162,7 +174,6 @@
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Remove</button>
     </div>
 
-    <!-- Модалки (Зображення, Збереження, Завантаження) -->
     <div class="modal" id="image-modal">
         <div class="modal-text" id="ui-modal-text">Long press the image to Save</div>
         <img id="result-img" src="" alt="Panel Image">
@@ -188,11 +199,10 @@
         </div>
     </div>
 
-    <!-- НОВА МОДАЛКА: Кастомний Ампераж -->
     <div class="modal" id="custom-amp-modal">
         <div class="modal-content">
             <h3 id="ui-custom-amp-title">Enter Amperage</h3>
-            <input type="text" id="custom-amp-input" placeholder="e.g. 130A">
+            <input type="text" id="custom-amp-input" placeholder="">
             <div class="modal-buttons">
                 <button style="background: #555; color: white;" onclick="closeModal('custom-amp-modal')" id="ui-custom-amp-cancel">Cancel</button>
                 <button style="background: #28a745; color: white;" onclick="saveCustomAmp()" id="ui-custom-amp-ok">Save</button>
@@ -201,31 +211,31 @@
     </div>
 
     <script>
+        // ==========================================
+        // ВСТАВ СВОЄ ПОСИЛАННЯ НА ЛОГОТИП ТУТ (Imgur)
+        // ==========================================
+        const LOGO_URL = "https://via.placeholder.com/200x60?text=YOUR+LOGO+HERE"; 
+        // ==========================================
+
         const i18n = {
             uk: {
-                title: "⚡ Електрощит", wire: "Провід", desc: "Опис ланцюга",
-                amps: "Струм", poles: "Полюси", add: "➕ Додати", rem: "➖ Видалити",
-                printImg: "📸 Зробити картинку", printPdf: "🖨️ Друк / Зберегти PDF",
+                title: "⚡ Електрощит", wire: "Провід", desc: "Опис ланцюга", amps: "Струм", poles: "Полюси", 
+                add: "➕ Додати", rem: "➖ Видалити", printImg: "📸 Зробити картинку", printPdf: "🖨️ Друк / Зберегти PDF",
                 linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
                 btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnExport: "📤 Експорт", btnImport: "📥 Імпорт", btnClose: "✖ Закрити",
-                saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти",
-                loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
-                savePlaceholder: "Назва щита",
-                leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)",
-                importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!",
+                saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти", loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
+                savePlaceholder: "Назва файлу", mainPanelPlaceholder: "Назва щита (для друку)", defaultPanelName: "ЕЛЕКТРОЩИТ",
+                leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)", importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!",
                 customAmpOption: "✏️ Ввести свій...", customAmpTitle: "Введіть струм", customAmpPlaceholder: "Напр. 130A", customAmpCancel: "Скасувати", customAmpOk: "Зберегти"
             },
             en: {
-                title: "⚡ Panel Schedule", wire: "Wire", desc: "Description",
-                amps: "Amps", poles: "Poles", add: "➕ Add", rem: "➖ Remove",
-                printImg: "📸 Generate Image", printPdf: "🖨️ Print / Save PDF",
+                title: "⚡ Panel Schedule", wire: "Wire", desc: "Description", amps: "Amps", poles: "Poles", 
+                add: "➕ Add", rem: "➖ Remove", printImg: "📸 Generate Image", printPdf: "🖨️ Print / Save PDF",
                 linked: "↳ Linked to #", hint: "Long press the image to Save",
                 btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnExport: "📤 Export", btnImport: "📥 Import", btnClose: "✖ Close",
-                saveTitle: "Save Panel", saveCancel: "Cancel", saveOk: "Save",
-                loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
-                savePlaceholder: "Panel Name",
-                leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)",
-                importedOk: "Data imported successfully!", importErr: "File read error!",
+                saveTitle: "Save Panel", saveCancel: "Cancel", saveOk: "Save", loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
+                savePlaceholder: "File Name", mainPanelPlaceholder: "Panel Name (for print)", defaultPanelName: "PANEL SCHEDULE",
+                leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)", importedOk: "Data imported successfully!", importErr: "File read error!",
                 customAmpOption: "✏️ Custom...", customAmpTitle: "Enter Amperage", customAmpPlaceholder: "e.g. 130A", customAmpCancel: "Cancel", customAmpOk: "Save"
             }
         };
@@ -233,11 +243,10 @@
         let currentLang = 'en';
         let activeTab = 'left';
         let totalRows = 6;
+        let panelName = ""; // Назва панелі для друку
         let panelData = {};
         
-        // Стандартні автомати Канади до 100A
         const standardAmpOptions = ["15A", "20A", "25A", "30A", "35A", "40A", "45A", "50A", "60A", "70A", "80A", "90A", "100A", "SPACE"];
-        
         let currentEditAmpId = null;
 
         function initApp() {
@@ -246,6 +255,8 @@
                 const data = JSON.parse(autosave);
                 totalRows = data.totalRows;
                 panelData = data.panelData;
+                panelName = data.panelName || "";
+                document.getElementById('main-panel-name').value = panelName;
             } else {
                 createNewData();
             }
@@ -254,6 +265,8 @@
 
         function createNewData() {
             totalRows = 6;
+            panelName = "";
+            document.getElementById('main-panel-name').value = "";
             panelData = {};
             for (let i = 1; i <= totalRows * 2; i++) {
                 panelData[i] = { desc: '', amps: '15A', wire: '', poles: 1, master: null };
@@ -261,8 +274,14 @@
         }
 
         function triggerAutosave() {
-            const state = { totalRows: totalRows, panelData: panelData };
+            const state = { totalRows: totalRows, panelData: panelData, panelName: panelName };
             localStorage.setItem('panel_autosave', JSON.stringify(state));
+        }
+
+        function updatePanelName(val) {
+            panelName = val;
+            triggerAutosave();
+            renderPrintView();
         }
 
         function switchTab(side) {
@@ -292,10 +311,10 @@
             document.getElementById('ui-save-cancel').innerText = t.saveCancel;
             document.getElementById('ui-save-ok').innerText = t.saveOk;
             document.getElementById('panel-name-input').placeholder = t.savePlaceholder;
+            document.getElementById('main-panel-name').placeholder = t.mainPanelPlaceholder;
             
             document.getElementById('ui-load-title').innerText = t.loadTitle;
             document.getElementById('ui-load-cancel').innerText = t.loadCancel;
-
             document.getElementById('tab-left').innerText = t.leftTab;
             document.getElementById('tab-right').innerText = t.rightTab;
 
@@ -336,10 +355,9 @@
                 currentEditAmpId = id;
                 document.getElementById('custom-amp-input').value = "";
                 document.getElementById('custom-amp-modal').style.display = 'flex';
-                renderAppView(); // Скидаємо вигляд селекта на попереднє значення, якщо користувач натисне Скасувати
+                renderAppView();
                 return;
             }
-
             panelData[id].amps = value;
             for (let i in panelData) { if (panelData[i].master === id) panelData[i].amps = value; }
             triggerAutosave();
@@ -385,18 +403,13 @@
                 let isBlue = (row % 3 === 0) ? 'phase-blue' : '';
                 let slaveClass = isSlave ? 'slave' : '';
 
-                // Генерація списку Струму з урахуванням кастомних значень
                 let isStandardAmp = standardAmpOptions.includes(d.amps);
                 let ampSelect = `<select class="b-amps a-${d.amps}" onchange="updateAmps(${i}, this.value)">`;
                 
                 standardAmpOptions.forEach(opt => { 
                     ampSelect += `<option value="${opt}" ${d.amps === opt ? 'selected' : ''}>${opt}</option>`; 
                 });
-
-                if (!isStandardAmp) {
-                    ampSelect += `<option value="${d.amps}" selected>${d.amps}</option>`;
-                }
-
+                if (!isStandardAmp) { ampSelect += `<option value="${d.amps}" selected>${d.amps}</option>`; }
                 ampSelect += `<option value="CUSTOM">${lang.customAmpOption}</option>`;
                 ampSelect += `</select>`;
 
@@ -423,7 +436,15 @@
 
         function renderPrintView() {
             let lang = i18n[currentLang];
-            let html = `<table class="p-table"><thead><tr>
+            let headerText = panelName.trim() ? panelName : lang.defaultPanelName;
+            
+            // ДОДАНО ШАПКУ З ЛОГО ТА НАЗВОЮ
+            let html = `
+            <div class="print-header">
+                <img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
+                <h2>${headerText}</h2>
+            </div>
+            <table class="p-table"><thead><tr>
                 <th>${lang.wire}</th><th>${lang.desc}</th><th>${lang.amps}</th><th>${lang.poles}</th><th>#</th>
                 <th>#</th><th>${lang.poles}</th><th>${lang.amps}</th><th>${lang.desc}</th><th>${lang.wire}</th>
             </tr></thead><tbody>`;
@@ -473,27 +494,24 @@
             let originalText = btn.innerText;
             btn.innerText = "⏳..."; btn.disabled = true;
 
-            html2canvas(document.getElementById('print-view'), { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            // Додано useCORS: true, щоб Imgur лого завантажилося в картинку
+            html2canvas(document.getElementById('print-view'), { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
                 document.getElementById('result-img').src = canvas.toDataURL("image/png");
                 document.getElementById('image-modal').style.display = 'flex';
+                btn.innerText = originalText; btn.disabled = false;
+            }).catch(err => {
+                alert("Помилка при створенні картинки. Можливо, посилання на логотип не підтримує завантаження.");
                 btn.innerText = originalText; btn.disabled = false;
             });
         }
 
         function exportDataFile() {
-            const dataToExport = {
-                autosave: localStorage.getItem('panel_autosave'),
-                saved_list: localStorage.getItem('panel_saved_list')
-            };
+            const dataToExport = { autosave: localStorage.getItem('panel_autosave'), saved_list: localStorage.getItem('panel_saved_list') };
             const jsonStr = JSON.stringify(dataToExport, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonStr);
-            
             const a = document.createElement('a');
-            a.href = dataUri;
-            a.download = 'electrical-panels-backup.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            a.href = dataUri; a.download = 'electrical-panels-backup.json';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
         function importDataFile(event) {
@@ -503,18 +521,13 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    
-                    if (imported.autosave) {
-                        localStorage.setItem('panel_autosave', imported.autosave);
-                    }
-                    
+                    if (imported.autosave) { localStorage.setItem('panel_autosave', imported.autosave); }
                     if (imported.saved_list) {
                         let currentSaved = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
                         let importedSaved = JSON.parse(imported.saved_list);
                         let mergedSaved = { ...currentSaved, ...importedSaved };
                         localStorage.setItem('panel_saved_list', JSON.stringify(mergedSaved));
                     }
-                    
                     initApp();
                     alert(i18n[currentLang].importedOk);
                 } catch (err) {
@@ -526,7 +539,8 @@
         }
 
         function openSaveModal() {
-            document.getElementById('panel-name-input').value = "";
+            // Підтягуємо існуючу назву, якщо є
+            document.getElementById('panel-name-input').value = panelName || "";
             document.getElementById('save-modal').style.display = 'flex';
         }
 
@@ -534,10 +548,16 @@
             let name = document.getElementById('panel-name-input').value.trim();
             if (!name) return alert(currentLang === 'uk' ? "Введіть назву!" : "Enter a name!");
             
+            // Якщо зберігаємо, автоматично оновлюємо і назву на екрані
+            panelName = name;
+            document.getElementById('main-panel-name').value = name;
+
             let savedPanels = JSON.parse(localStorage.getItem('panel_saved_list') || '{}');
-            savedPanels[name] = { totalRows: totalRows, panelData: panelData };
+            savedPanels[name] = { totalRows: totalRows, panelData: panelData, panelName: panelName };
             localStorage.setItem('panel_saved_list', JSON.stringify(savedPanels));
             
+            triggerAutosave();
+            renderPrintView();
             closeModal('save-modal');
         }
 
@@ -566,6 +586,8 @@
             if (savedPanels[name]) {
                 totalRows = savedPanels[name].totalRows;
                 panelData = savedPanels[name].panelData;
+                panelName = savedPanels[name].panelName || name;
+                document.getElementById('main-panel-name').value = panelName;
                 triggerAutosave();
                 renderAll();
                 closeModal('load-modal');
