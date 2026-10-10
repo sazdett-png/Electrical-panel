@@ -36,7 +36,7 @@
         .btn-lang { background-color: #2c2c2c; color: #fff; border: 1px solid #444; }
         .btn-file { background-color: #444; color: #fff; border: 1px solid #555; }
         .btn-file:hover { background-color: #555; }
-        .btn-action { background-color: #007bff; color: #fff; width: 100%; max-width: 400px; font-size: 16px; padding: 14px; margin: 10px auto 0 auto; display: block;}
+        .btn-action { background-color: #007bff; color: #fff; width: 100%; font-size: 15px; padding: 12px; margin-top: 8px; display: block;}
         .btn-print { background-color: #6c757d; }
 
         .app-view { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 900px; margin: 0 auto 20px auto; }
@@ -78,12 +78,18 @@
         select.a-100A, td.a-100A { background-color: #0984e3; color: #fff; }
         select.a-SPACE, td.a-SPACE { background-color: #111; color: #555; border-color:#222; }
 
+        .export-cards-container { display: flex; gap: 15px; justify-content: center; max-width: 900px; margin: 20px auto; flex-wrap: wrap; }
+        .export-card { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 15px; flex: 1; min-width: 280px; text-align: center; }
+        .export-card h3 { margin: 0 0 5px 0; font-size: 18px; color: #fff; }
+        .export-card p { margin: 0 0 10px 0; font-size: 12px; color: #888; }
+
         .print-view-wrapper { position: absolute; top: -9999px; left: -9999px; width: 900px; background: #fff; padding: 20px; }
         
-        .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; color: #000; background: #fff;}
         .print-header img { max-height: 60px; max-width: 250px; object-fit: contain; }
         .print-header h2 { margin: 0; font-size: 24px; color: #000; text-transform: uppercase; }
 
+        /* СТАНДАРТНИЙ ДИЗАЙН (МОЙ) */
         table.p-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: #000; }
         .p-table th, .p-table td { border: 2px solid #000; padding: 8px 5px; text-align: center; vertical-align: middle; color: #000; }
         .p-table th { background-color: #e0e0e0; font-weight: bold; }
@@ -91,12 +97,53 @@
         .p-table td.num { background-color: #f4f4f4; font-weight: bold; width: 45px; font-size: 14px; }
         .p-table td.num.phase-blue { background-color: #00aaff !important; color: white !important; }
 
+        /* ДИЗАЙН БРИГАДИРА */
+        .f-header-container { display: flex; align-items: center; padding-bottom: 10px; position: relative; min-height: 70px; margin-bottom: 15px; background: #fff; }
+        .f-header-container img { position: absolute; left: 0; top: 0; max-height: 60px; max-width: 150px; object-fit: contain; }
+        .f-header-container h2 { width: 100%; text-align: center; margin: 0; font-size: 18px; font-weight: bold; color: #000; text-transform: uppercase; }
+        
+        table.f-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; background: #fff; color: #000; border: 1px solid #000; }
+        table.f-table tr { height: 38px; } 
+        .f-table td { border: 1px solid #000; text-align: center; vertical-align: middle; padding: 3px; }
+        
+        /* Ячейка номера - ЦЕЛИКОМ ЗАКРАШЕНА */
+        .f-num-cell { 
+            padding: 0 !important; 
+            width: 35px; 
+            vertical-align: bottom; /* Текст внизу ячейки */
+            text-align: left; /* Текст слева */
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+        }
+        
+        /* Цвета на всю ячейку */
+        .f-bg-red { background-color: #ff0000 !important; }
+        .f-bg-white { background-color: #ffffff !important; }
+        .f-bg-blue { background-color: #00aaff !important; }
+        
+        .f-num-text { 
+            padding-left: 4px; 
+            padding-bottom: 2px;
+            font-size: 12px; 
+            color: #000; /* Черный текст, как на оригинале */
+            font-weight: bold; 
+            line-height: 1;
+        }
+        
+        .f-desc-cell { font-size: 12px; width: auto; }
+        .f-amp-cell { font-size: 12px; width: 45px; }
+
         @media print {
             body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; }
-            .app-header, .main-panel-name-input, .tab-controls, .app-view, .fab-container, .modal, .btn-action { display: none !important; }
+            .app-header, .main-panel-name-input, .tab-controls, .app-view, .fab-container, .modal, .export-cards-container { display: none !important; }
             .print-view-wrapper { position: static !important; width: 100% !important; padding: 0 !important; background: #fff !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
+            /* Перемикання макетів при друку */
+            body.print-standard #print-view-foreman { display: none !important; }
+            body.print-foreman #print-view { display: none !important; }
+
+            /* Кольори стандартного дизайну */
             td.a-15A { background-color: white !important; color: black !important; }
             td.a-20A { background-color: #fff59d !important; color: black !important; font-weight: bold; }
             td.a-25A { background-color: #ffcc80 !important; color: black !important; font-weight: bold; }
@@ -160,18 +207,32 @@
 
     <div class="app-view" id="app-view"></div>
 
-    <div style="max-width: 400px; margin: 0 auto;">
-        <button class="btn-action" onclick="generateImage()" id="ui-print-img">📸 Generate Image</button>
-        <button class="btn-action btn-print" onclick="window.print()" id="ui-print-pdf">🖨️ Print / Save PDF</button>
+    <!-- КНОПКИ ЕКСПОРТУ В 2 БЛОКИ -->
+    <div class="export-cards-container">
+        <div class="export-card">
+            <h3 id="ui-export-my-title">👨‍🔧 My Layout</h3>
+            <p id="ui-export-my-desc">Detailed view with colored amps</p>
+            <button class="btn-action" id="btn-img-standard" onclick="generateImage('standard')">📸 Image</button>
+            <button class="btn-action btn-print" onclick="printPanel('standard')">🖨️ PDF / Print</button>
+        </div>
+        <div class="export-card">
+            <h3 id="ui-export-fm-title">👷 Foreman Layout</h3>
+            <p id="ui-export-fm-desc">Clean view matching original standard</p>
+            <button class="btn-action" id="btn-img-foreman" onclick="generateImage('foreman')">📸 Image</button>
+            <button class="btn-action btn-print" onclick="printPanel('foreman')">🖨️ PDF / Print</button>
+        </div>
     </div>
 
+    <!-- КОНТЕЙНЕРИ ДЛЯ ГЕНЕРАЦІЇ -->
     <div class="print-view-wrapper" id="print-view"></div>
+    <div class="print-view-wrapper" id="print-view-foreman"></div>
 
     <div class="fab-container">
         <button class="fab fab-add" onclick="addRow()" id="ui-add">➕ Add Row</button>
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Remove</button>
     </div>
 
+    <!-- МОДАЛКИ -->
     <div class="modal" id="image-modal">
         <div class="modal-text" id="ui-modal-text">Long press the image to Save</div>
         <img id="result-img" src="" alt="Panel Image">
@@ -212,29 +273,33 @@
         // ==========================================
         // ВСТАВ СВОЄ ПОСИЛАННЯ НА ЛОГОТИП ТУТ (Imgur)
         // ==========================================
-        const LOGO_URL = "https://i.imgur.com/dWSbe2e.png"; 
+        const LOGO_URL = "https://via.placeholder.com/200x60?text=YOUR+LOGO+HERE"; 
         // ==========================================
 
         const i18n = {
             uk: {
                 title: "⚡ Електрощит", wire: "Провід", desc: "Опис ланцюга", amps: "Струм", poles: "Полюси", 
-                add: "➕ Додати", rem: "➖ Видалити", printImg: "📸 Зробити картинку", printPdf: "🖨️ Друк / Зберегти PDF",
+                add: "➕ Додати", rem: "➖ Видалити",
                 linked: "↳ Об'єднано з #", hint: "Затисни картинку пальцем, щоб Зберегти",
                 btnNew: "📄 Новий", btnSave: "💾 Зберегти", btnLoad: "📂 Відкрити", btnExport: "📤 Експорт", btnImport: "📥 Імпорт", btnClose: "✖ Закрити",
                 saveTitle: "Зберегти щит", saveCancel: "Скасувати", saveOk: "Зберегти", loadTitle: "Збережені щити", loadCancel: "Закрити", noPanels: "Немає збережених щитів",
                 savePlaceholder: "Назва файлу", mainPanelPlaceholder: "Назва щита (для друку)", defaultPanelName: "ЕЛЕКТРОЩИТ",
                 leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)", importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!",
-                customAmpOption: "✏️ Ввести свій...", customAmpTitle: "Введіть струм", customAmpPlaceholder: "Напр. 130A", customAmpCancel: "Скасувати", customAmpOk: "Зберегти"
+                customAmpOption: "✏️ Ввести свій...", customAmpTitle: "Введіть струм", customAmpPlaceholder: "Напр. 130A", customAmpCancel: "Скасувати", customAmpOk: "Зберегти",
+                myLayoutTitle: "👨‍🔧 Мій дизайн", myLayoutDesc: "Детальний вигляд з кольоровим струмом",
+                fmLayoutTitle: "👷 Дизайн Бригадира", fmLayoutDesc: "Чистий вигляд як у стандарті"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire", desc: "Description", amps: "Amps", poles: "Poles", 
-                add: "➕ Add", rem: "➖ Remove", printImg: "📸 Generate Image", printPdf: "🖨️ Print / Save PDF",
+                add: "➕ Add", rem: "➖ Remove",
                 linked: "↳ Linked to #", hint: "Long press the image to Save",
                 btnNew: "📄 New", btnSave: "💾 Save", btnLoad: "📂 Open", btnExport: "📤 Export", btnImport: "📥 Import", btnClose: "✖ Close",
                 saveTitle: "Save Panel", saveCancel: "Cancel", saveOk: "Save", loadTitle: "Saved Panels", loadCancel: "Close", noPanels: "No saved panels",
                 savePlaceholder: "File Name", mainPanelPlaceholder: "Panel Name (for print)", defaultPanelName: "PANEL SCHEDULE",
                 leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)", importedOk: "Data imported successfully!", importErr: "File read error!",
-                customAmpOption: "✏️ Custom...", customAmpTitle: "Enter Amperage", customAmpPlaceholder: "e.g. 130A", customAmpCancel: "Cancel", customAmpOk: "Save"
+                customAmpOption: "✏️ Custom...", customAmpTitle: "Enter Amperage", customAmpPlaceholder: "e.g. 130A", customAmpCancel: "Cancel", customAmpOk: "Save",
+                myLayoutTitle: "👨‍🔧 My Layout", myLayoutDesc: "Detailed view with colored amps",
+                fmLayoutTitle: "👷 Foreman Layout", fmLayoutDesc: "Clean view matching original standard"
             }
         };
 
@@ -279,7 +344,7 @@
         function updatePanelName(val) {
             panelName = val;
             triggerAutosave();
-            renderPrintView();
+            renderAllPrints();
         }
 
         function switchTab(side) {
@@ -293,8 +358,6 @@
             currentLang = lang;
             const t = i18n[lang];
             document.getElementById('ui-title').innerText = t.title;
-            document.getElementById('ui-print-img').innerText = t.printImg;
-            document.getElementById('ui-print-pdf').innerText = t.printPdf;
             document.getElementById('ui-add').innerText = t.add;
             document.getElementById('ui-rem').innerText = t.rem;
             document.getElementById('ui-modal-text').innerText = t.hint;
@@ -320,6 +383,11 @@
             document.getElementById('custom-amp-input').placeholder = t.customAmpPlaceholder;
             document.getElementById('ui-custom-amp-cancel').innerText = t.customAmpCancel;
             document.getElementById('ui-custom-amp-ok').innerText = t.customAmpOk;
+
+            document.getElementById('ui-export-my-title').innerText = t.myLayoutTitle;
+            document.getElementById('ui-export-my-desc').innerText = t.myLayoutDesc;
+            document.getElementById('ui-export-fm-title').innerText = t.fmLayoutTitle;
+            document.getElementById('ui-export-fm-desc').innerText = t.fmLayoutDesc;
             
             renderAll();
         }
@@ -345,7 +413,7 @@
         function updateText(id, field, value) { 
             panelData[id][field] = value; 
             triggerAutosave();
-            renderPrintView(); 
+            renderAllPrints(); 
         }
         
         function updateAmps(id, value) {
@@ -388,7 +456,15 @@
             renderAll();
         }
 
-        function renderAll() { renderAppView(); renderPrintView(); }
+        function renderAll() { 
+            renderAppView(); 
+            renderAllPrints();
+        }
+
+        function renderAllPrints() {
+            renderPrintView();
+            renderForemanPrintView();
+        }
 
         function renderAppView() {
             let html = ''; 
@@ -432,11 +508,13 @@
             document.getElementById('app-view').innerHTML = html;
         }
 
+        // ==========================================
+        // 1. СТАНДАРТНИЙ ДИЗАЙН (ДЛЯ ТЕБЕ)
+        // ==========================================
         function renderPrintView() {
             let lang = i18n[currentLang];
             let headerText = panelName.trim() ? panelName : lang.defaultPanelName;
             
-            // КОЛОНКУ З ПОЛЮСАМИ ПРИХОВАНО В ТАБЛИЦІ ДРУКУ/ФОТО
             let html = `
             <div class="print-header">
                 <img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
@@ -455,7 +533,6 @@
                 let isBlue = (row % 3 === 0) ? 'phase-blue' : '';
                 html += `<tr>`;
 
-                // Ліва сторона (Без колонки полів, але з об'єднанням рядків rowspan)
                 if (skipLeft > 0) { 
                     html += `<td class="num ${isBlue}">${idL}</td>`; 
                     skipLeft--; 
@@ -468,7 +545,6 @@
                     if (dL.poles > 1) skipLeft = dL.poles - 1; 
                 }
 
-                // Права сторона (Без колонки полів)
                 if (skipRight > 0) { 
                     html += `<td class="num ${isBlue}">${idR}</td>`; 
                     skipRight--; 
@@ -487,17 +563,115 @@
             document.getElementById('print-view').innerHTML = html;
         }
 
-        function generateImage() {
-            let btn = document.getElementById('ui-print-img');
+        // ==========================================
+        // 2. ДИЗАЙН БРИГАДИРА (ЯК НА СКРІНІ)
+        // ==========================================
+        function formatForemanAmp(amp) {
+            if (!amp || amp === 'SPACE') return ''; 
+            if (amp.includes('A')) return amp.replace('A', ' A'); 
+            return amp;
+        }
+
+        function renderForemanPrintView() {
+            let lang = i18n[currentLang];
+            let headerText = panelName.trim() ? panelName : lang.defaultPanelName;
+            
+            let html = `
+            <div class="f-header-container">
+                <img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
+                <h2>${headerText}</h2>
+            </div>
+            <table class="f-table">
+                <colgroup>
+                    <col style="width: 35px;">
+                    <col style="width: auto;">
+                    <col style="width: 45px;">
+                    <col style="width: 45px;">
+                    <col style="width: auto;">
+                    <col style="width: 35px;">
+                </colgroup>
+                <tbody>`;
+
+            let skipLeft = 0; let skipRight = 0;
+
+            for (let row = 1; row <= totalRows; row++) {
+                let idL = (row * 2) - 1; let idR = row * 2;
+                let dL = panelData[idL]; let dR = panelData[idR];
+                
+                let phaseIdx = (row - 1) % 3;
+                let phaseClass = phaseIdx === 0 ? 'f-bg-red' : (phaseIdx === 1 ? 'f-bg-white' : 'f-bg-blue');
+
+                html += `<tr>`;
+
+                // ЛІВИЙ НОМЕР (ЦЕЛИКОМ ЗАКРАШЕНО)
+                html += `
+                <td class="f-num-cell ${phaseClass}">
+                    <div class="f-num-text">${idL}</div>
+                </td>`;
+
+                // ЛІВИЙ ОПИС ТА СТРУМ
+                if (skipLeft > 0) { 
+                    skipLeft--; 
+                } else { 
+                    let rs = dL.poles > 1 ? `rowspan="${dL.poles}"` : ''; 
+                    html += `<td class="f-desc-cell" ${rs}>${dL.desc}</td>`;
+                    html += `<td class="f-amp-cell" ${rs}>${formatForemanAmp(dL.amps)}</td>`;
+                    if (dL.poles > 1) skipLeft = dL.poles - 1; 
+                }
+
+                // ПРАВИЙ СТРУМ ТА ОПИС
+                if (skipRight > 0) { 
+                    skipRight--; 
+                } else { 
+                    let rs = dR.poles > 1 ? `rowspan="${dR.poles}"` : ''; 
+                    html += `<td class="f-amp-cell" ${rs}>${formatForemanAmp(dR.amps)}</td>`;
+                    html += `<td class="f-desc-cell" ${rs}>${dR.desc}</td>`;
+                    if (dR.poles > 1) skipRight = dR.poles - 1; 
+                }
+
+                // ПРАВИЙ НОМЕР (ЦЕЛИКОМ ЗАКРАШЕНО)
+                html += `
+                <td class="f-num-cell ${phaseClass}">
+                    <div class="f-num-text">${idR}</div>
+                </td>`;
+                
+                html += `</tr>`;
+            }
+            html += `</tbody></table>`;
+            document.getElementById('print-view-foreman').innerHTML = html;
+        }
+
+        // ==========================================
+        // ЛОГІКА ДРУКУ ТА ФОТО 
+        // ==========================================
+        function printPanel(type) {
+            if (type === 'foreman') {
+                document.body.classList.add('print-foreman');
+                document.body.classList.remove('print-standard');
+            } else {
+                document.body.classList.add('print-standard');
+                document.body.classList.remove('print-foreman');
+            }
+            // Затримка гарантує, що класи CSS встигнуть застосуватись перед відкриттям PDF
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        function generateImage(type) {
+            let targetId = type === 'foreman' ? 'print-view-foreman' : 'print-view';
+            let btnId = type === 'foreman' ? 'btn-img-foreman' : 'btn-img-standard';
+            let btn = document.getElementById(btnId);
+            
             let originalText = btn.innerText;
             btn.innerText = "⏳..."; btn.disabled = true;
 
-            html2canvas(document.getElementById('print-view'), { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
+            html2canvas(document.getElementById(targetId), { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
                 document.getElementById('result-img').src = canvas.toDataURL("image/png");
                 document.getElementById('image-modal').style.display = 'flex';
                 btn.innerText = originalText; btn.disabled = false;
             }).catch(err => {
-                alert("Помилка при створенні картинки. Можливо, посилання на логотип не підтримує завантаження.");
+                alert("Помилка генерації.");
                 btn.innerText = originalText; btn.disabled = false;
             });
         }
@@ -552,7 +726,7 @@
             localStorage.setItem('panel_saved_list', JSON.stringify(savedPanels));
             
             triggerAutosave();
-            renderPrintView();
+            renderAllPrints();
             closeModal('save-modal');
         }
 
