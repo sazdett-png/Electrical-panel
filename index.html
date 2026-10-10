@@ -43,12 +43,19 @@
 
         .card { background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
         .card.slave { opacity: 0.5; background-color: #151515; }
-        .card-header { display: flex; align-items: center; padding: 12px; background-color: #252525; border-bottom: 1px solid #333; gap: 10px; }
+        .card-header { display: flex; align-items: center; padding: 10px; background-color: #252525; border-bottom: 1px solid #333; gap: 8px; }
 
-        .b-num-box { background-color: #444; color: #fff; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 16px; font-weight: bold; }
+        .b-num-box { background-color: #444; color: #fff; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 16px; font-weight: bold; flex-shrink: 0; }
         .card.phase-blue .b-num-box { background-color: #00aaff; color: #fff; }
 
-        .card-header select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; font-weight: bold; font-size: 14px; appearance: none; text-align: center; }
+        .card-header select { flex: 1; padding: 10px 5px; border-radius: 8px; border: 1px solid #444; font-weight: bold; font-size: 14px; appearance: none; text-align: center; }
+
+        /* Кнопка видалення автомату */
+        .btn-del-breaker {
+            background: transparent; color: #ff4444; border: none; padding: 5px;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: none;
+        }
+        .btn-del-breaker:active { transform: scale(0.85); }
 
         .card-body { display: flex; flex-direction: column; gap: 1px; background-color: #333; }
         .card-body input { background-color: #1e1e1e; border: none; padding: 16px 12px; color: #fff; font-size: 16px; width: 100%; }
@@ -106,30 +113,16 @@
         table.f-table tr { height: 38px; } 
         .f-table td { border: 1px solid #000; text-align: center; vertical-align: middle; padding: 3px; }
         
-        /* Ячейка номера - ЦЕЛИКОМ ЗАКРАШЕНА */
         .f-num-cell { 
-            padding: 0 !important; 
-            width: 35px; 
-            vertical-align: bottom; /* Текст внизу ячейки */
-            text-align: left; /* Текст слева */
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important;
+            padding: 0 !important; width: 35px; vertical-align: bottom; text-align: left; 
+            -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
         }
         
-        /* Цвета на всю ячейку */
         .f-bg-red { background-color: #ff0000 !important; }
         .f-bg-white { background-color: #ffffff !important; }
         .f-bg-blue { background-color: #00aaff !important; }
         
-        .f-num-text { 
-            padding-left: 4px; 
-            padding-bottom: 2px;
-            font-size: 12px; 
-            color: #000; /* Черный текст, как на оригинале */
-            font-weight: bold; 
-            line-height: 1;
-        }
-        
+        .f-num-text { padding-left: 4px; padding-bottom: 2px; font-size: 12px; color: #000; font-weight: bold; line-height: 1; }
         .f-desc-cell { font-size: 12px; width: auto; }
         .f-amp-cell { font-size: 12px; width: 45px; }
 
@@ -139,11 +132,9 @@
             .print-view-wrapper { position: static !important; width: 100% !important; padding: 0 !important; background: #fff !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-            /* Перемикання макетів при друку */
             body.print-standard #print-view-foreman { display: none !important; }
             body.print-foreman #print-view { display: none !important; }
 
-            /* Кольори стандартного дизайну */
             td.a-15A { background-color: white !important; color: black !important; }
             td.a-20A { background-color: #fff59d !important; color: black !important; font-weight: bold; }
             td.a-25A { background-color: #ffcc80 !important; color: black !important; font-weight: bold; }
@@ -207,7 +198,6 @@
 
     <div class="app-view" id="app-view"></div>
 
-    <!-- КНОПКИ ЕКСПОРТУ В 2 БЛОКИ -->
     <div class="export-cards-container">
         <div class="export-card">
             <h3 id="ui-export-my-title">👨‍🔧 My Layout</h3>
@@ -223,7 +213,6 @@
         </div>
     </div>
 
-    <!-- КОНТЕЙНЕРИ ДЛЯ ГЕНЕРАЦІЇ -->
     <div class="print-view-wrapper" id="print-view"></div>
     <div class="print-view-wrapper" id="print-view-foreman"></div>
 
@@ -232,7 +221,6 @@
         <button class="fab fab-rem" onclick="removeRow()" id="ui-rem">➖ Remove</button>
     </div>
 
-    <!-- МОДАЛКИ -->
     <div class="modal" id="image-modal">
         <div class="modal-text" id="ui-modal-text">Long press the image to Save</div>
         <img id="result-img" src="" alt="Panel Image">
@@ -271,7 +259,7 @@
 
     <script>
         // ==========================================
-        // ВСТАВ СВОЄ ПОСИЛАННЯ НА ЛОГОТИП ТУТ (Imgur)
+        // ВСТАВ СВОЄ ПОСИЛАННЯ НА ЛОГОТИП ТУТ
         // ==========================================
         const LOGO_URL = "https://via.placeholder.com/200x60?text=YOUR+LOGO+HERE"; 
         // ==========================================
@@ -287,7 +275,8 @@
                 leftTab: "⬅️ Ліва сторона (1, 3, 5...)", rightTab: "➡️ Права сторона (2, 4, 6...)", importedOk: "Дані успішно імпортовано!", importErr: "Помилка читання файлу!",
                 customAmpOption: "✏️ Ввести свій...", customAmpTitle: "Введіть струм", customAmpPlaceholder: "Напр. 130A", customAmpCancel: "Скасувати", customAmpOk: "Зберегти",
                 myLayoutTitle: "👨‍🔧 Мій дизайн", myLayoutDesc: "Детальний вигляд з кольоровим струмом",
-                fmLayoutTitle: "👷 Дизайн Бригадира", fmLayoutDesc: "Чистий вигляд як у стандарті"
+                fmLayoutTitle: "👷 Дизайн Бригадира", fmLayoutDesc: "Чистий вигляд як у стандарті",
+                delConfirm: "Видалити цей автомат і зсунути всі під ним вгору?"
             },
             en: {
                 title: "⚡ Panel Schedule", wire: "Wire", desc: "Description", amps: "Amps", poles: "Poles", 
@@ -299,7 +288,8 @@
                 leftTab: "⬅️ Left Side (1, 3, 5...)", rightTab: "➡️ Right Side (2, 4, 6...)", importedOk: "Data imported successfully!", importErr: "File read error!",
                 customAmpOption: "✏️ Custom...", customAmpTitle: "Enter Amperage", customAmpPlaceholder: "e.g. 130A", customAmpCancel: "Cancel", customAmpOk: "Save",
                 myLayoutTitle: "👨‍🔧 My Layout", myLayoutDesc: "Detailed view with colored amps",
-                fmLayoutTitle: "👷 Foreman Layout", fmLayoutDesc: "Clean view matching original standard"
+                fmLayoutTitle: "👷 Foreman Layout", fmLayoutDesc: "Clean view matching original standard",
+                delConfirm: "Delete this breaker and shift everything below it up?"
             }
         };
 
@@ -456,6 +446,59 @@
             renderAll();
         }
 
+        // === НОВА ФУНКЦІЯ: ВИДАЛИТИ І ЗСУНУТИ ВГОРУ ===
+        function deleteAndShift(id) {
+            let lang = i18n[currentLang];
+            if(!confirm(lang.delConfirm)) return;
+            
+            let isOdd = (id % 2 !== 0);
+            let sideItems = [];
+            
+            // 1. Збираємо всі незалежні автомати на цій стороні (пропускаючи той, що видаляємо)
+            for (let r = 1; r <= totalRows; r++) {
+                let currId = isOdd ? (r * 2 - 1) : (r * 2);
+                let d = panelData[currId];
+                if (d.master === null && currId !== id) {
+                    sideItems.push({ desc: d.desc, amps: d.amps, wire: d.wire, poles: d.poles });
+                }
+            }
+            
+            // 2. Очищаємо всю сторону (робимо пусті SPACE)
+            for (let r = 1; r <= totalRows; r++) {
+                let currId = isOdd ? (r * 2 - 1) : (r * 2);
+                panelData[currId] = { desc: '', amps: 'SPACE', wire: '', poles: 1, master: null };
+            }
+            
+            // 3. Записуємо автомати назад підряд, зсунувши їх вгору
+            let currentWriteRow = 1;
+            for (let item of sideItems) {
+                let writeId = isOdd ? (currentWriteRow * 2 - 1) : (currentWriteRow * 2);
+                
+                // Якщо не вистачає рядків внизу, автоматично додаємо їх
+                while (currentWriteRow + item.poles - 1 > totalRows) {
+                    addRow();
+                }
+                
+                panelData[writeId].desc = item.desc;
+                panelData[writeId].amps = item.amps;
+                panelData[writeId].wire = item.wire;
+                panelData[writeId].poles = item.poles;
+                
+                // Відновлюємо слейви для багатополюсних
+                for (let p = 1; p < item.poles; p++) {
+                    let slaveId = writeId + (p * 2);
+                    panelData[slaveId].master = writeId;
+                    panelData[slaveId].poles = 1;
+                    panelData[slaveId].amps = item.amps;
+                }
+                
+                currentWriteRow += item.poles;
+            }
+            
+            triggerAutosave();
+            renderAll();
+        }
+
         function renderAll() { 
             renderAppView(); 
             renderAllPrints();
@@ -493,11 +536,12 @@
                     <option value="3" ${d.poles == 3 ? 'selected' : ''}>3 Pole</option>
                 </select>`;
 
+                // Додана кнопка видалення (🗑️)
                 html += `
                 <div class="card ${slaveClass} ${isBlue}">
                     <div class="card-header">
                         <div class="b-num-box">${i}</div>
-                        ${!isSlave ? ampSelect + poleSelect : `<div class="slave-badge">${lang.linked}${d.master}</div>`}
+                        ${!isSlave ? ampSelect + poleSelect + `<button class="btn-del-breaker" onclick="deleteAndShift(${i})" title="Delete & Shift">🗑️</button>` : `<div class="slave-badge">${lang.linked}${d.master}</div>`}
                     </div>
                     <div class="card-body">
                         <input type="text" placeholder="${lang.desc}" value="${d.desc}" oninput="updateText(${i}, 'desc', this.value)" ${isSlave ? 'disabled' : ''}>
@@ -603,7 +647,7 @@
 
                 html += `<tr>`;
 
-                // ЛІВИЙ НОМЕР (ЦЕЛИКОМ ЗАКРАШЕНО)
+                // ЛІВИЙ НОМЕР 
                 html += `
                 <td class="f-num-cell ${phaseClass}">
                     <div class="f-num-text">${idL}</div>
@@ -629,7 +673,7 @@
                     if (dR.poles > 1) skipRight = dR.poles - 1; 
                 }
 
-                // ПРАВИЙ НОМЕР (ЦЕЛИКОМ ЗАКРАШЕНО)
+                // ПРАВИЙ НОМЕР 
                 html += `
                 <td class="f-num-cell ${phaseClass}">
                     <div class="f-num-text">${idR}</div>
@@ -652,7 +696,6 @@
                 document.body.classList.add('print-standard');
                 document.body.classList.remove('print-foreman');
             }
-            // Затримка гарантує, що класи CSS встигнуть застосуватись перед відкриттям PDF
             setTimeout(() => {
                 window.print();
             }, 100);
